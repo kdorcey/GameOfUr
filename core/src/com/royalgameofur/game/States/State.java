@@ -24,6 +24,6 @@ public abstract class State {
     protected abstract void handleInput();
 
     public abstract void update(float deltaTime); //timebetween frames
-
+    public abstract void dispose();
     public abstract void render (SpriteBatch sb); //container for all the stuff we want to render
 }

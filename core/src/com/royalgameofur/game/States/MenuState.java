@@ -10,6 +10,9 @@ import com.royalgameofur.game.GameOfUrDemo;
 
 public class MenuState extends State {
     private Texture title;
+
+
+
     private Texture background;
     private Texture playLocalButton;
     private Texture playOnlineButton;
@@ -39,7 +42,14 @@ public class MenuState extends State {
         sb.draw(playLocalButton, ((GameOfUrDemo.width/2) - playLocalButton.getWidth()/2), ((GameOfUrDemo.height/3)- playLocalButton.getHeight()/2));
         sb.draw(playOnlineButton, ((GameOfUrDemo.width/2) - playOnlineButton.getWidth()/2), ((GameOfUrDemo.height/6)- playOnlineButton.getWidth()/2));
         sb.end();
+    }
 
-
+    @Override
+    public void dispose() {
+        //deletes all assets when not in use
+        background.dispose();
+        title.dispose();
+        playLocalButton.dispose();
+        playOnlineButton.dispose();
     }
 }
