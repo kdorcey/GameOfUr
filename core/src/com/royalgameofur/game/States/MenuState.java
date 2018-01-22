@@ -49,7 +49,7 @@ public class MenuState extends State {
             Rectangle hostOnlineButtonListener = new Rectangle(hostOnlineButton.getX(),GameOfUrDemo.height-hostOnlineButton.getY()-hostOnlineButton.getHeight(), hostOnlineButton.getWidth(), hostOnlineButton.getHeight());
             Rectangle playOnlineButtonListener = new Rectangle(playOnlineButton.getX(),GameOfUrDemo.height-playOnlineButton.getY()-playOnlineButton.getHeight(), playOnlineButton.getWidth(), playOnlineButton.getHeight());
             if (playLocalButtonListener.contains(Gdx.input.getX(), Gdx.input.getY())) {
-                System.out.println("worked");
+                System.out.println("play local pressed");
                 gsm.set(new PlayState(gsm));
                 dispose();
             }
