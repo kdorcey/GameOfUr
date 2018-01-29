@@ -36,7 +36,7 @@ public class Stones {
         spacesMoved += diceRoll;
         if(spacesMoved == 14){
             stoneFinished = true;
-            System.out.println("Stone complete!");
+            System.out.println("StonePosition complete!");
         }
         else {
             playerMoveSet.get(spacesMoved).setPlayerOnSquareBoolean();

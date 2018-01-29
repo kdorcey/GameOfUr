@@ -3,6 +3,7 @@ package com.royalgameofur.game.States;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 
 /**
  *CHANGE THESE PROTECTED VARIABLES EW
@@ -10,7 +11,7 @@ import com.badlogic.gdx.math.Vector3;
  * Created by Kyle on 1/15/2018.
  */
 
-public abstract class State {
+public abstract class State{
     protected OrthographicCamera camera; //camera
     protected Vector3 mouse; //xyz coordinante system
     protected GameStateManager gsm; //allows overlayed states (think pause screens)

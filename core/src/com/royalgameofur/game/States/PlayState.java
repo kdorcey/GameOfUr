@@ -36,6 +36,10 @@ public class PlayState extends State {
     private Sprite blackStonePool;
     private Sprite whiteStonePool;
 
+    private StonePosition test;
+
+    private int roll;
+
     protected PlayState(GameStateManager gsm) {
         super(gsm);
         background = new Texture("PlayStateBackground.jpg");
@@ -53,7 +57,7 @@ public class PlayState extends State {
         blackStonePool6 = new Texture("BlackStonePool6.png");
         blackStonePool7 = new Texture("BlackStonePool7.png");
 
-        
+
         blackStonePoolTexture = new Texture("BlackStonePool7.png");
         whiteStonePoolTexture = new Texture("WhiteStonePool7.png");
 
@@ -69,7 +73,12 @@ public class PlayState extends State {
         stones = new Texture[7];
         enemyStones = new Texture[7];
 
-        createSquares();
+        createSquares(); //THIS MUST BE DEFINED BEFORE STONE POSITION
+
+        test = new StonePosition(0,square);
+
+
+
     }
     private static void createSquares(){
         //will probably be used to instantiate "Square" objects later on but rn it's just adding the square sprites
@@ -102,40 +111,43 @@ public class PlayState extends State {
 
     @Override
     protected void handleInput() {
-        if(Gdx.input.justTouched()){
-            System.out.println(Gdx.input.getX()+", "+Gdx.input.getY());
-            if(dice.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height-Gdx.input.getY())){
-                int roll = GUIRunGame.diceRoll();
-                System.out.println("Dice Rolled "+roll);
-                if(roll==0){
+        if(Gdx.input.justTouched()) {
+            System.out.println(Gdx.input.getX() + ", " + (GameOfUrDemo.height - Gdx.input.getY()));
+
+            //updates dice texture based on dice roll
+            if (dice.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())) {
+                roll = GUIRunGame.diceRoll();
+                System.out.println("Dice Rolled " + roll);
+                if (roll == 0) {
                     dice.setTexture(diceRoll0);
-                }
-                else if(roll == 1){
+                } else if (roll == 1) {
                     dice.setTexture(diceRoll1);
-                }
-                else if (roll == 2){
+                } else if (roll == 2) {
                     dice.setTexture(diceRoll2);
-                }
-                else if (roll == 3){
+                } else if (roll == 3) {
                     dice.setTexture(diceRoll3);
                 }
-
-
-            }
-            if(blackStonePool.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height-Gdx.input.getY())){
-                System.out.println("Black Move");
-            }
-            if(whiteStonePool.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height-Gdx.input.getY())){
-                System.out.println("White Move");
             }
 
-        }
+
+                if (blackStonePool.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())) {
+                    System.out.println("Black Move");
+                    test.stoneClicked(roll);
+
+                }
+                if (whiteStonePool.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())) {
+                    System.out.println("White Move");
+                }
+
+            }
+
 
     }
 
     @Override
     public void update(float deltaTime) {
         handleInput();
+        test.update(deltaTime);
     }
 
     @Override
@@ -155,6 +167,16 @@ public class PlayState extends State {
         dice.draw(sb);
         blackStonePool.draw(sb);
         whiteStonePool.draw(sb);
+        if((test.getLastX() != test.getCurrentX()) || (test.getLastY() != test.getCurrentY())){
+            if(test.getLastX() != test.getCurrentX()){
+                test.moveX();
+            }
+            if(test.getLastY() != test.getCurrentY()){
+                test.moveY();
+            }
+        }
+        test.getStone().setPosition(test.getLastX(),test.getLastY());
+        test.getStone().draw(sb);
 
         sb.end();
     }
