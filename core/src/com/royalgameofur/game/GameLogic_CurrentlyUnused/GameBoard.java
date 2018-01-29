@@ -9,7 +9,7 @@ public class GameBoard {
     private static int player1or2;
 
     public GameBoard(){
-        setBoard();
+        //setBoard();
     }
 
 
@@ -65,9 +65,11 @@ public class GameBoard {
 
     }
 
+
     public static BoardSquare[][] getBoardLocation() {
         return boardLocation;
     }
+
 
     public static boolean winCheck(Player lastPlayerToMove){
         boolean win = false;

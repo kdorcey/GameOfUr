@@ -17,8 +17,7 @@ import java.util.Vector;
  */
 
 public class StonePosition{
-    private Vector2 stonePosition;
-    private Vector2 velocity;
+
 
     private Texture stoneTexture;
     private Sprite stone;
@@ -30,10 +29,6 @@ public class StonePosition{
 
     public StonePosition (int color, Sprite square[][]) {
         //color = 0 if black, color = 1 white
-        
-
-        stonePosition = new Vector2(20, 500);
-        velocity = new Vector2(0,0);
 
         stoneTexture = new Texture("SquareBlackStoneTemp.png");
         stone = new Sprite (new TextureRegion(stoneTexture));
@@ -41,12 +36,6 @@ public class StonePosition{
         currentY = 500;
         lastX =20;
         lastY=500;
-    }
-    public void update(float dt){
-        velocity.add(currentX,currentY);
-        velocity.scl(dt);
-        stonePosition.add(velocity.x,velocity.y);
-        velocity.scl(1/dt);
     }
 
     public void stoneClicked(int diceRoll){

@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.royalgameofur.game.GameLogic.MoveManager;
 import com.royalgameofur.game.GameLogic_CurrentlyUnused.GUIRunGame;
 import com.royalgameofur.game.GameOfUrDemo;
 
@@ -38,10 +39,12 @@ public class PlayState extends State {
 
     private StonePosition test;
 
-    private int roll;
+    private MoveManager gameRunner;
+
 
     protected PlayState(GameStateManager gsm) {
         super(gsm);
+        gameRunner = new MoveManager();
         background = new Texture("PlayStateBackground.jpg");
         diceRoll0 = new Texture("DiceRoll0.png");
         diceRoll1 = new Texture("DiceRoll1.png");
@@ -116,15 +119,15 @@ public class PlayState extends State {
 
             //updates dice texture based on dice roll
             if (dice.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())) {
-                roll = GUIRunGame.diceRoll();
-                System.out.println("Dice Rolled " + roll);
-                if (roll == 0) {
+                gameRunner.rollDice();
+                System.out.println("Dice Rolled " + gameRunner.getDiceRoll());
+                if (gameRunner.getDiceRoll() == 0) {
                     dice.setTexture(diceRoll0);
-                } else if (roll == 1) {
+                } else if (gameRunner.getDiceRoll() == 1) {
                     dice.setTexture(diceRoll1);
-                } else if (roll == 2) {
+                } else if (gameRunner.getDiceRoll() == 2) {
                     dice.setTexture(diceRoll2);
-                } else if (roll == 3) {
+                } else if (gameRunner.getDiceRoll() == 3) {
                     dice.setTexture(diceRoll3);
                 }
             }
@@ -132,7 +135,7 @@ public class PlayState extends State {
 
                 if (blackStonePool.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())) {
                     System.out.println("Black Move");
-                    test.stoneClicked(roll);
+                    test.stoneClicked(gameRunner.getDiceRoll());
 
                 }
                 if (whiteStonePool.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())) {
@@ -147,7 +150,6 @@ public class PlayState extends State {
     @Override
     public void update(float deltaTime) {
         handleInput();
-        test.update(deltaTime);
     }
 
     @Override
