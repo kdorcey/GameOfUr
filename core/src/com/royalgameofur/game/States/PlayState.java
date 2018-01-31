@@ -1,15 +1,10 @@
 package com.royalgameofur.game.States;
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Rectangle;
 import com.royalgameofur.game.GameLogic.MoveManager;
-import com.royalgameofur.game.GameLogic_CurrentlyUnused.GUIRunGame;
 import com.royalgameofur.game.GameOfUrDemo;
 
 /**
@@ -37,7 +32,7 @@ public class PlayState extends State {
     private Sprite blackStonePool;
     private Sprite whiteStonePool;
 
-    private StonePosition test;
+    private StonePosition stonePositionManager;
 
     private MoveManager gameRunner;
 
@@ -78,7 +73,7 @@ public class PlayState extends State {
 
         createSquares(); //THIS MUST BE DEFINED BEFORE STONE POSITION
 
-        test = new StonePosition(0,square);
+        stonePositionManager = new StonePosition(2,square);
 
 
 
@@ -115,10 +110,15 @@ public class PlayState extends State {
     @Override
     protected void handleInput() {
         if(Gdx.input.justTouched()) {
-            System.out.println(Gdx.input.getX() + ", " + (GameOfUrDemo.height - Gdx.input.getY()));
+            System.out.println(Gdx.input.getX() + ", " + (Gdx.input.getY()));
+
+            //checks that it is a legal time to "roll" the dice
 
             //updates dice texture based on dice roll
-            if (dice.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())) {
+            if (dice.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())
+                    && gameRunner.diceRollPermisssionStatus() == true) {
+
+                gameRunner.diceRollInProgress();
                 gameRunner.rollDice();
                 System.out.println("Dice Rolled " + gameRunner.getDiceRoll());
                 if (gameRunner.getDiceRoll() == 0) {
@@ -132,19 +132,26 @@ public class PlayState extends State {
                 }
             }
 
+            //checks if it is blacks turn
+            if (gameRunner.getPlayerTurnNumber() ==2 && gameRunner.diceRollPermisssionStatus() == false) {
+                System.out.println("Black Move");
 
-                if (blackStonePool.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())) {
-                    System.out.println("Black Move");
-                    test.stoneClicked(gameRunner.getDiceRoll());
+                //checks if the player stone pool is clicked
+                if((blackStonePool.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY()))){
+                    stonePositionManager.stoneClicked(gameRunner.getDiceRoll());
+                    gameRunner.nextTurn();
+                }
+                //checks if an individual stone was pressed
 
-                }
-                if (whiteStonePool.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())) {
-                    System.out.println("White Move");
-                }
+
 
             }
-
-
+            if (whiteStonePool.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())
+                    && gameRunner.getPlayerTurnNumber() ==1 && gameRunner.diceRollPermisssionStatus() == false) {
+                System.out.println("White Move");
+                gameRunner.nextTurn();
+            }
+        }
     }
 
     @Override
@@ -169,16 +176,17 @@ public class PlayState extends State {
         dice.draw(sb);
         blackStonePool.draw(sb);
         whiteStonePool.draw(sb);
-        if((test.getLastX() != test.getCurrentX()) || (test.getLastY() != test.getCurrentY())){
-            if(test.getLastX() != test.getCurrentX()){
-                test.moveX();
+
+        if((stonePositionManager.getLastX() != stonePositionManager.getCurrentX()) || (stonePositionManager.getLastY() != stonePositionManager.getCurrentY())){
+            if(stonePositionManager.getLastX() != stonePositionManager.getCurrentX()){
+                stonePositionManager.moveX();
             }
-            if(test.getLastY() != test.getCurrentY()){
-                test.moveY();
+            if(stonePositionManager.getLastY() != stonePositionManager.getCurrentY()){
+                stonePositionManager.moveY();
             }
         }
-        test.getStone().setPosition(test.getLastX(),test.getLastY());
-        test.getStone().draw(sb);
+        stonePositionManager.getStone().setPosition(stonePositionManager.getLastX(), stonePositionManager.getLastY());
+        stonePositionManager.getStone().draw(sb);
 
         sb.end();
     }
