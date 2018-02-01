@@ -18,7 +18,7 @@ import java.util.Vector;
  * Created by Kyle on 1/28/2018.
  */
 
-public class StonePosition{
+public class StoneObjects {
 
 
     private Texture stoneTexture;
@@ -34,26 +34,36 @@ public class StonePosition{
     private  HashMap<Integer, Point2D.Double> whiteMoveSet = new HashMap<Integer, Point2D.Double>();
     private  HashMap<Integer, Point2D.Double> blackMoveSet = new HashMap<Integer, Point2D.Double>();
 
-    public StonePosition (int color, Sprite square[][]) {
+    public StoneObjects(int color) {
         //color = 1 if white, color = 2 black
         this.color = color;
         this.whiteMoveSet = defineMoveSet(1);
         this.blackMoveSet = defineMoveSet(2);
-        stoneTexture = new Texture("SquareBlackStoneTemp.png");
+
+        if(color==1){
+            stoneTexture = new Texture("SquareWhiteStoneTemp.png");
+            currentX = 300;
+            currentY = 500;
+
+            lastX = currentX;
+            lastY = currentY;
+        }
+        else if(color ==2){
+            stoneTexture = new Texture("SquareBlackStoneTemp.png");
+            currentX = 20;
+            currentY = 500;
+            lastX =20;
+            lastY=500;
+        }
+
         stone = new Sprite (new TextureRegion(stoneTexture));
-        currentX = 20;
-        currentY = 500;
-        lastX =20;
-        lastY=500;
+
         totalMoves = 0;
     }
 
 
     public void stoneClicked(int diceRoll){
         totalMoves += diceRoll;
-        System.out.println("diceroll " +diceRoll);
-        System.out.println("previous X: "+currentX+"current y "+currentY);
-
         if(diceRoll !=0) {
             if (color == 1) {
                 currentX = (int) whiteMoveSet.get(totalMoves).getX();
@@ -63,7 +73,6 @@ public class StonePosition{
                 currentY = (int) blackMoveSet.get(totalMoves).getY();
             }
         }
-        System.out.println("currentX" +currentX+" currenty "+currentY );
     }
 
 

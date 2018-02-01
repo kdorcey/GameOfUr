@@ -7,6 +7,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.royalgameofur.game.GameLogic.MoveManager;
 import com.royalgameofur.game.GameOfUrDemo;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
  * Created by Kyle on 1/16/2018.
  */
@@ -16,30 +19,27 @@ public class PlayState extends State {
     //squares go from left to right from 0-7. 4 and 5 are invisible in rows 0 and 1
     //rows 0 and 2 have safe spaces at 0 and 6
     //row 2 has a safe space at 3
-
     private static Sprite square[][];
-    private Texture stones[];
-    private Texture enemyStones[];
-    private Texture blackStonePool1, blackStonePool2, blackStonePool3, blackStonePool4, blackStonePool5, blackStonePool6, blackStonePool7;
-    private Texture blackStonePoolTexture;
-    private Texture whiteStonePool1, whiteStonePool2, whiteStonePool3, whiteStonePool4, whiteStonePool5, whiteStonePool6, whiteStonePool7;
-    private Texture whiteStonePoolTexture;
     private Texture dicePool;
     private Texture diceRoll0, diceRoll1, diceRoll2, diceRoll3;
     private static Texture background;
 
     private Sprite dice;
-    private Sprite blackStonePool;
-    private Sprite whiteStonePool;
 
-    private StonePosition stonePositionManager;
+    private StoneObjects stoneObjectsManager;
+
+    private HashMap<Integer, Sprite> blackStonePoolTextures;
+    private HashMap<Integer, Sprite> whiteStonePoolTextures;
+
+    private ArrayList<Integer> whiteStonesOnBoard;
+    private ArrayList<Integer> blackStonesOnBoard;
 
     private MoveManager gameRunner;
-
 
     protected PlayState(GameStateManager gsm) {
         super(gsm);
         gameRunner = new MoveManager();
+
         background = new Texture("PlayStateBackground.jpg");
         diceRoll0 = new Texture("DiceRoll0.png");
         diceRoll1 = new Texture("DiceRoll1.png");
@@ -47,37 +47,47 @@ public class PlayState extends State {
         diceRoll3 = new Texture("DiceRoll3.png");
         dicePool = diceRoll0;
 
-        blackStonePool1 = new Texture("BlackStonePool1.png");
-        blackStonePool2 = new Texture("BlackStonePool2.png");
-        blackStonePool3 = new Texture("BlackStonePool3.png");
-        blackStonePool4 = new Texture("BlackStonePool4.png");
-        blackStonePool5 = new Texture("BlackStonePool5.png");
-        blackStonePool6 = new Texture("BlackStonePool6.png");
-        blackStonePool7 = new Texture("BlackStonePool7.png");
-
-
-        blackStonePoolTexture = new Texture("BlackStonePool7.png");
-        whiteStonePoolTexture = new Texture("WhiteStonePool7.png");
+        whiteStonePoolTextures = fillStonePoolTextures(1);
+        blackStonePoolTextures = fillStonePoolTextures(2);
 
         dice = new Sprite (new TextureRegion(dicePool));
         dice.setPosition(102, 0); //convert these to ratios
-        blackStonePool = new Sprite(new TextureRegion(blackStonePoolTexture));
-        blackStonePool.setPosition(20,500); //convert these to ratios
-        whiteStonePool = new Sprite(new TextureRegion(whiteStonePoolTexture));
-        whiteStonePool.setPosition(300,500);
-
 
         square = new Sprite[8][3];
-        stones = new Texture[7];
-        enemyStones = new Texture[7];
 
-        createSquares(); //THIS MUST BE DEFINED BEFORE STONE POSITION
+        blackStonesOnBoard = new ArrayList<Integer>(); //used to keep track of white stones on board
+        whiteStonesOnBoard = new ArrayList<Integer>(); //used to keep track of black stones on board
 
-        stonePositionManager = new StonePosition(2,square);
+        createSquares();
 
-
-
+        stoneObjectsManager = new StoneObjects(2);
     }
+    private static HashMap<Integer, Sprite> fillStonePoolTextures(int stonePoolColor){
+        //color =1 when white, color =2 when black
+        HashMap<Integer, Sprite> filledHashMap = new HashMap<Integer, Sprite>();
+        if(stonePoolColor ==1){
+            filledHashMap.put(1,new Sprite(new TextureRegion(new Texture("WhiteStonePool1.png"))));
+            filledHashMap.put(2,new Sprite(new TextureRegion(new Texture("WhiteStonePool2.png"))));
+            filledHashMap.put(3,new Sprite(new TextureRegion(new Texture("WhiteStonePool3.png"))));
+            filledHashMap.put(4,new Sprite(new TextureRegion(new Texture("WhiteStonePool4.png"))));
+            filledHashMap.put(5,new Sprite(new TextureRegion(new Texture("WhiteStonePool5.png"))));
+            filledHashMap.put(6,new Sprite(new TextureRegion(new Texture("WhiteStonePool6.png"))));
+            filledHashMap.put(7,new Sprite(new TextureRegion(new Texture("WhiteStonePool7.png"))));
+        }
+        else if(stonePoolColor ==2) {
+            filledHashMap.put(1,new Sprite(new TextureRegion(new Texture("BlackStonePool1.png"))));
+            filledHashMap.put(2,new Sprite(new TextureRegion(new Texture("BlackStonePool2.png"))));
+            filledHashMap.put(3,new Sprite(new TextureRegion(new Texture("BlackStonePool3.png"))));
+            filledHashMap.put(4,new Sprite(new TextureRegion(new Texture("BlackStonePool4.png"))));
+            filledHashMap.put(5,new Sprite(new TextureRegion(new Texture("BlackStonePool5.png"))));
+            filledHashMap.put(6,new Sprite(new TextureRegion(new Texture("BlackStonePool6.png"))));
+            filledHashMap.put(7,new Sprite(new TextureRegion(new Texture("BlackStonePool7.png"))));
+        }
+
+        return filledHashMap;
+    }
+
+
     private static void createSquares(){
         //will probably be used to instantiate "Square" objects later on but rn it's just adding the square sprites
         //squares are 88x88
@@ -100,7 +110,6 @@ public class PlayState extends State {
                 }
                 square[y][x].setPosition(xPosition,yPosition);
 
-
                 xPosition +=88;
             }
             yPosition += 88;
@@ -112,12 +121,10 @@ public class PlayState extends State {
         if(Gdx.input.justTouched()) {
             System.out.println(Gdx.input.getX() + ", " + (Gdx.input.getY()));
 
-            //checks that it is a legal time to "roll" the dice
-
-            //updates dice texture based on dice roll
             if (dice.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())
                     && gameRunner.diceRollPermisssionStatus() == true) {
 
+            //MAKE THIS LESS WORSE//////////////////////////////////////
                 gameRunner.diceRollInProgress();
                 gameRunner.rollDice();
                 System.out.println("Dice Rolled " + gameRunner.getDiceRoll());
@@ -131,25 +138,45 @@ public class PlayState extends State {
                     dice.setTexture(diceRoll3);
                 }
             }
+            ////////////////////////////////////////////////////////////
 
-            //checks if it is blacks turn
-            if (gameRunner.getPlayerTurnNumber() ==2 && gameRunner.diceRollPermisssionStatus() == false) {
+            //detects if the black stone pool has been clicked, might make this its own  method
+            if((blackStonePoolTextures.get(gameRunner.getUnusedBlackStones().size()).getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY()))
+                    && gameRunner.getPlayerTurnNumber() == 2 && gameRunner.diceRollPermisssionStatus() == false)
+            {
                 System.out.println("Black Move");
+                updateStonePool();
 
-                //checks if the player stone pool is clicked
-                if((blackStonePool.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY()))){
-                    stonePositionManager.stoneClicked(gameRunner.getDiceRoll());
-                    gameRunner.nextTurn();
-                }
-                //checks if an individual stone was pressed
-
-
-
-            }
-            if (whiteStonePool.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())
-                    && gameRunner.getPlayerTurnNumber() ==1 && gameRunner.diceRollPermisssionStatus() == false) {
-                System.out.println("White Move");
+                gameRunner.deployBlackStone().stoneClicked(gameRunner.getDiceRoll());
                 gameRunner.nextTurn();
+            }
+
+            //checks if the white stone pool was clicked, might make this it's own method
+            if (whiteStonePoolTextures.get(gameRunner.getUnusedWhiteStones().size()).getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())
+                    && gameRunner.getPlayerTurnNumber() ==1 && gameRunner.diceRollPermisssionStatus() == false)
+            {
+                System.out.println("White Move");
+                gameRunner.deployWhiteStone().stoneClicked(gameRunner.getDiceRoll());
+                gameRunner.nextTurn();
+            }
+
+            //checks if a white stone has been clicked
+            for(int whiteStones:gameRunner.getWhiteStonesInUse()){
+                StoneObjects stoneToCheck = gameRunner.getWhiteStones()[whiteStones];
+
+                if(stoneToCheck.getStone().getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())
+                        && gameRunner.getPlayerTurnNumber() ==1 && gameRunner.diceRollPermisssionStatus() == false){
+                    stoneToCheck.stoneClicked(gameRunner.getDiceRoll());
+                }
+            }
+            //checks if a black stone has been clicked
+            for(int blackStones:gameRunner.getBlackStonesInUse()){
+                StoneObjects stoneToCheck = gameRunner.getBlackStones()[blackStones];
+
+                if(stoneToCheck.getStone().getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())
+                        && gameRunner.getPlayerTurnNumber() == 2 && gameRunner.diceRollPermisssionStatus() == false){
+                    stoneToCheck.stoneClicked(gameRunner.getDiceRoll());
+                }
             }
         }
     }
@@ -157,6 +184,7 @@ public class PlayState extends State {
     @Override
     public void update(float deltaTime) {
         handleInput();
+
     }
 
     @Override
@@ -174,20 +202,53 @@ public class PlayState extends State {
             }
         }
         dice.draw(sb);
-        blackStonePool.draw(sb);
-        whiteStonePool.draw(sb);
 
-        if((stonePositionManager.getLastX() != stonePositionManager.getCurrentX()) || (stonePositionManager.getLastY() != stonePositionManager.getCurrentY())){
-            if(stonePositionManager.getLastX() != stonePositionManager.getCurrentX()){
-                stonePositionManager.moveX();
-            }
-            if(stonePositionManager.getLastY() != stonePositionManager.getCurrentY()){
-                stonePositionManager.moveY();
-            }
-        }
-        stonePositionManager.getStone().setPosition(stonePositionManager.getLastX(), stonePositionManager.getLastY());
-        stonePositionManager.getStone().draw(sb);
+        blackStonePoolTextures.get(gameRunner.getUnusedBlackStones().size()).setPosition(20,500);
+        blackStonePoolTextures.get(gameRunner.getUnusedBlackStones().size()).draw(sb);
+        whiteStonePoolTextures.get(gameRunner.getUnusedWhiteStones().size()).setPosition(300,500);
+        whiteStonePoolTextures.get(gameRunner.getUnusedWhiteStones().size()).draw(sb);
+
+        updateStonePosition(sb);
 
         sb.end();
     }
+
+    private void updateStonePosition(SpriteBatch sb){
+        for(int blackStoneNumber : gameRunner.getBlackStonesInUse()){
+            StoneObjects stoneToUpdate = gameRunner.getBlackStones()[blackStoneNumber];
+
+            if((stoneToUpdate.getLastX() != stoneToUpdate.getCurrentX()) || (stoneToUpdate.getLastY() != stoneToUpdate.getCurrentY())){
+                if(stoneToUpdate.getLastX() != stoneToUpdate.getCurrentX()){
+                    stoneToUpdate.moveX();
+                }
+                if(stoneToUpdate.getLastY() != stoneToUpdate.getCurrentY()){
+                    stoneToUpdate.moveY();
+                }
+            }
+
+            stoneToUpdate.getStone().setPosition(stoneToUpdate.getLastX(), stoneToUpdate.getLastY());
+            stoneToUpdate.getStone().draw(sb);
+        }
+
+        for(int whiteStoneNumber : gameRunner.getWhiteStonesInUse()){
+            StoneObjects stoneToUpdate = gameRunner.getWhiteStones()[whiteStoneNumber];
+
+            if((stoneToUpdate.getLastX() != stoneToUpdate.getCurrentX()) || (stoneToUpdate.getLastY() != stoneToUpdate.getCurrentY())){
+                if(stoneToUpdate.getLastX() != stoneToUpdate.getCurrentX()){
+                    stoneToUpdate.moveX();
+                }
+                if(stoneToUpdate.getLastY() != stoneToUpdate.getCurrentY()){
+                    stoneToUpdate.moveY();
+                }
+            }
+
+            stoneToUpdate.getStone().setPosition(stoneToUpdate.getLastX(), stoneToUpdate.getLastY());
+            stoneToUpdate.getStone().draw(sb);
+        }
+    }
+
+    private void updateStonePool(){
+
+    }
+
 }
