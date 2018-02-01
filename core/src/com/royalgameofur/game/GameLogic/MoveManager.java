@@ -31,7 +31,7 @@ public class MoveManager {
 
         unusedWhiteStones = new Stack<Integer>();
         unusedBlackStones = new Stack<Integer>();
-
+//f 
         whiteStonesInUse = new ArrayList<Integer>();
         blackStonesInUse = new ArrayList<Integer>();
 
