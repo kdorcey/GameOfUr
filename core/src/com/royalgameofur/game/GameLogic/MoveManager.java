@@ -1,6 +1,8 @@
 package com.royalgameofur.game.GameLogic;
 
 import com.royalgameofur.game.States.StoneObjects;
+
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.Random;
@@ -28,10 +30,11 @@ public class MoveManager {
         //playerNumber will always either be 1 or 2 (representing player 1 and 2 respectively)
         dice = new Random();
         turnCount = 0;
+        diceRoll = 0;
 
         unusedWhiteStones = new Stack<Integer>();
         unusedBlackStones = new Stack<Integer>();
-//f 
+
         whiteStonesInUse = new ArrayList<Integer>();
         blackStonesInUse = new ArrayList<Integer>();
 
@@ -47,8 +50,99 @@ public class MoveManager {
         }
 
         diceRollPermisssion = true;
+    }
+    public boolean stonePoolLegalMoveCheck(int colorToCheck){
+        boolean poolLegalCheck = true;
+        StoneObjects testStone = new StoneObjects(1);
+        ArrayList<Integer> stonesInUse = new ArrayList();
+        StoneObjects[] stonesToCheck = new StoneObjects[]{};
+
+        if(colorToCheck == 1){
+            int testStoneNumber = unusedWhiteStones.get(0);
+            testStone = whiteStones[testStoneNumber];
+            stonesInUse = whiteStonesInUse;
+            stonesToCheck = whiteStones;
+
+        }
+        else if (colorToCheck == 2){
+            int testStoneNumber = unusedBlackStones.get(0);
+            testStone = blackStones[testStoneNumber];
+            stonesInUse = blackStonesInUse;
+            stonesToCheck = blackStones;
+        }
+
+        if(stonesInUse.size()>0){
+            for(int stonesToCheckNumber: stonesInUse) {
+                if(testStone.testMove(diceRoll).equals(stonesToCheck[stonesToCheckNumber].getCurrentLocation())){
+                    poolLegalCheck = false;
+                }
+            }
+        }
+        return poolLegalCheck;
+
 
     }
+
+    public boolean legalMoveCheck(int colorToCheck, int stoneNumberToCheck){
+        //colorToCheck = 1 when white, colorToCheck = 2 when black
+        boolean legalCheck = true;
+        Point2D.Double testMove = new Point2D.Double();
+        StoneObjects stoneToCheck = new StoneObjects(1);
+
+        if(colorToCheck == 1){stoneToCheck = whiteStones[stoneNumberToCheck];}
+        else if(colorToCheck ==2){stoneToCheck = blackStones[stoneNumberToCheck];}
+
+        testMove = stoneToCheck.testMove(diceRoll);
+
+        //makes sure that the stone is only finishing with a legal
+        if(stoneToCheck.getTotalMoves() + diceRoll >15){
+            return legalCheck;
+        }
+        else{
+            //checks that a player doesn't land on their own piece
+            if(colorToCheck == 1){
+                for(int whiteStoneToCheck:whiteStonesInUse){
+                    if(whiteStones[whiteStoneToCheck].getCurrentLocation().equals(testMove)){
+                        legalCheck = false;
+                        return legalCheck;
+                    }
+                }
+
+                //in the event that it would land on an enemy stone, this makes sure that
+                //the enemy stone is not on a safe space
+                for(int blackStonesToCheck:blackStonesInUse){
+                    if(blackStones[blackStonesToCheck].getCurrentLocation().equals(testMove)){
+                        if(blackStones[blackStonesToCheck].isStoneOnSafeSpace()){
+                            legalCheck = false;
+                            return legalCheck;
+                        }
+                    }
+                }
+            }
+            else if(colorToCheck ==2){
+                for(int blackStoneToCheck:blackStonesInUse){
+                    if(blackStones[blackStoneToCheck].getCurrentLocation().equals(testMove)){
+                        legalCheck = false;
+                        return legalCheck;
+                    }
+
+                }
+                //in the event that it would land on an enemy stone, this makes sure that
+                //the enemy stone is not on a safe space
+                for(int whiteStoneToCheck:whiteStonesInUse){
+                    if(whiteStones[whiteStoneToCheck].getCurrentLocation().equals(testMove)){
+                        if(whiteStones[whiteStoneToCheck].isStoneOnSafeSpace()){
+                            legalCheck = false;
+                            return legalCheck;
+                        }
+                    }
+                }
+            }
+
+            return legalCheck;
+        }
+    }
+
 
     public void rollDice(){
         diceRoll = dice.nextInt(4);

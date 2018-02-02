@@ -6,11 +6,15 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.List;
+import com.badlogic.gdx.utils.Array;
 import com.royalgameofur.game.GameLogic.PlayerStones;
 import com.royalgameofur.game.GameLogic_CurrentlyUnused.StoneTest;
 import com.royalgameofur.game.GameLogic_CurrentlyUnused.Stones;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -28,8 +32,11 @@ public class StoneObjects {
     private int currentY;
     private int lastX;
     private int lastY;
+    private Point2D.Double currentLocation;
     private int totalMoves; //each square on the board corresponds to a "total" move count
     private Stones playerStones[];
+    private java.util.List<Integer> safeSpaces;
+    private boolean onSafeSpace;
 
     private  HashMap<Integer, Point2D.Double> whiteMoveSet = new HashMap<Integer, Point2D.Double>();
     private  HashMap<Integer, Point2D.Double> blackMoveSet = new HashMap<Integer, Point2D.Double>();
@@ -37,6 +44,7 @@ public class StoneObjects {
     public StoneObjects(int color) {
         //color = 1 if white, color = 2 black
         this.color = color;
+        this.safeSpaces = Arrays.asList(4,8,14);
         this.whiteMoveSet = defineMoveSet(1);
         this.blackMoveSet = defineMoveSet(2);
 
@@ -47,18 +55,42 @@ public class StoneObjects {
 
             lastX = currentX;
             lastY = currentY;
+
         }
         else if(color ==2){
             stoneTexture = new Texture("SquareBlackStoneTemp.png");
             currentX = 20;
             currentY = 500;
-            lastX =20;
-            lastY=500;
+            lastX = currentX;
+            lastY = currentY;
+
+
         }
 
         stone = new Sprite (new TextureRegion(stoneTexture));
 
         totalMoves = 0;
+    }
+
+    public Point2D.Double getCurrentLocation(){
+        return currentLocation;
+    }
+    public boolean isStoneOnSafeSpace(){
+        return onSafeSpace;
+    }
+
+    public Point2D.Double testMove(int diceRoll){
+        int testTotalMove = totalMoves + diceRoll;
+        Point2D.Double moveSetToReturn = new Point2D.Double();
+
+        if(color ==1){
+            moveSetToReturn = whiteMoveSet.get(testTotalMove);
+        }
+        else if(color ==2){
+            moveSetToReturn = blackMoveSet.get(testTotalMove);
+        }
+
+        return moveSetToReturn;
     }
 
 
@@ -68,10 +100,20 @@ public class StoneObjects {
             if (color == 1) {
                 currentX = (int) whiteMoveSet.get(totalMoves).getX();
                 currentY = (int) whiteMoveSet.get(totalMoves).getY();
+                currentLocation = whiteMoveSet.get(totalMoves);
             } else if (color == 2) {
                 currentX = (int) blackMoveSet.get(totalMoves).getX();
                 currentY = (int) blackMoveSet.get(totalMoves).getY();
+                currentLocation = blackMoveSet.get(totalMoves);
             }
+
+            if(safeSpaces.contains(totalMoves)){
+                onSafeSpace = true;
+            }
+            else{
+                onSafeSpace = false;
+            }
+
         }
     }
 
@@ -111,7 +153,7 @@ public class StoneObjects {
     public int getCurrentY(){
         return currentY;
     }
-
+    public int getTotalMoves() {return totalMoves;}
     public Sprite getStone(){
         return stone;
     }
@@ -173,6 +215,13 @@ public class StoneObjects {
 
 
         return moveSet;
+    }
+
+    public  HashMap<Integer, Point2D.Double> getWhiteMoveSet(){
+        return whiteMoveSet;
+    }
+    public HashMap<Integer, Point2D.Double> getBlackMoveSet(){
+        return blackMoveSet;
     }
 
 
