@@ -37,6 +37,7 @@ public class StoneObjects {
     private Stones playerStones[];
     private java.util.List<Integer> safeSpaces;
     private boolean onSafeSpace;
+    private boolean goAgain; //this is only true immediately after a stone lands on a safe space. After that player goes again it is set to false
 
     private  HashMap<Integer, Point2D.Double> whiteMoveSet = new HashMap<Integer, Point2D.Double>();
     private  HashMap<Integer, Point2D.Double> blackMoveSet = new HashMap<Integer, Point2D.Double>();
@@ -109,9 +110,11 @@ public class StoneObjects {
 
             if(safeSpaces.contains(totalMoves)){
                 onSafeSpace = true;
+                goAgain = true;
             }
             else{
                 onSafeSpace = false;
+                goAgain = false;
             }
 
         }
@@ -156,6 +159,9 @@ public class StoneObjects {
     public int getTotalMoves() {return totalMoves;}
     public Sprite getStone(){
         return stone;
+    }
+    public int getColor() {
+        return color;
     }
 
     public static HashMap defineMoveSet(int playerNumber){

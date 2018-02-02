@@ -24,6 +24,13 @@ public class MoveManager {
     private Stack<Integer> unusedBlackStones;
     private ArrayList<Integer> blackStonesInUse;
 
+    int completedBlackStoneCount;
+    int completeWhiteStoneCount;
+
+    private boolean win;
+    private boolean blackWin;
+    private boolean whiteWin;
+
 
 
     public MoveManager(){
@@ -31,6 +38,8 @@ public class MoveManager {
         dice = new Random();
         turnCount = 0;
         diceRoll = 0;
+        completedBlackStoneCount = 0;
+        completeWhiteStoneCount = 0;
 
         unusedWhiteStones = new Stack<Integer>();
         unusedBlackStones = new Stack<Integer>();
@@ -48,6 +57,9 @@ public class MoveManager {
             unusedWhiteStones.add(i);
             unusedBlackStones.add(i);
         }
+        win = false;
+        blackWin = false;
+        whiteWin = false;
 
         diceRollPermisssion = true;
     }
@@ -168,10 +180,50 @@ public class MoveManager {
         diceRollPermisssion = false;
     }
 
+    public void stoneNextTurn(StoneObjects stoneJustMoved){
+        stoneJustMoved.stoneClicked(diceRoll);
+        if(stoneJustMoved.isStoneOnSafeSpace() == true){
+            diceRollPermisssion = true;
+            System.out.println("GO AGAIN");
+        }
+        else{
+            if(stoneJustMoved.getTotalMoves() == 15){
+                if(stoneJustMoved.getColor() ==1){
+                    completeWhiteStoneCount++;
+                }
+                else if (stoneJustMoved.getColor() ==2){
+                    completedBlackStoneCount++;
+                }
+            }
+            nextTurn();
+        }
+    }
     public void nextTurn(){
         turnCount++;
         diceRollPermisssion  = true;
     }
+
+    public boolean winCheck(){
+        if(completedBlackStoneCount ==15){
+            blackWin = true;
+            whiteWin = false;
+            win = true;
+        }
+        else if (completeWhiteStoneCount ==15){
+            whiteWin = true;
+            blackWin = false;
+            win = true;
+        }
+        else{
+            whiteWin = false;
+            blackWin = false;
+            win = false;
+        }
+        return win;
+
+    }
+
+
 
     public StoneObjects deployWhiteStone(){
         int whiteStoneToDeploy = unusedWhiteStones.pop();

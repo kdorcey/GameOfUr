@@ -151,20 +151,21 @@ public class PlayState extends State {
                     && gameRunner.diceRollPermisssionStatus() == false && gameRunner.legalMoveCheck(1,whiteStones))
             {
 
-                stoneToCheck.stoneClicked(gameRunner.getDiceRoll());
-                gameRunner.nextTurn();
+                gameRunner.stoneNextTurn(stoneToCheck);
+                /// /stoneToCheck.stoneClicked(gameRunner.getDiceRoll());
+                //gameRunner.nextTurn();
             }
         }
         //same as above but for black stones
         for(int blackStones:gameRunner.getBlackStonesInUse()){
             StoneObjects stoneToCheck = gameRunner.getBlackStones()[blackStones];
-
             if(stoneToCheck.getStone().getBoundingRectangle().contains(Gdx.input.getX(),
                     GameOfUrDemo.height - Gdx.input.getY()) && gameRunner.getPlayerTurnNumber() == 2
                     && gameRunner.diceRollPermisssionStatus() == false && gameRunner.legalMoveCheck(2, blackStones))
             {
-                stoneToCheck.stoneClicked(gameRunner.getDiceRoll());
-                gameRunner.nextTurn();
+                gameRunner.stoneNextTurn(stoneToCheck);
+                //stoneToCheck.stoneClicked(gameRunner.getDiceRoll());
+                //gameRunner.nextTurn();
             }
         }
     }
