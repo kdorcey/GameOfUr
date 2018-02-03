@@ -4,6 +4,7 @@ import com.royalgameofur.game.States.StoneObjects;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.Stack;
 import java.util.Random;
 
@@ -24,20 +25,28 @@ public class MoveManager {
     private Stack<Integer> unusedBlackStones;
     private ArrayList<Integer> blackStonesInUse;
 
-    int completedBlackStoneCount;
-    int completeWhiteStoneCount;
+    private int completedBlackStoneCount;
+    private int completeWhiteStoneCount;
+
+    private int diceTexture;
 
     private boolean win;
     private boolean blackWin;
     private boolean whiteWin;
 
+    Scanner reader;
 
 
     public MoveManager(){
         //playerNumber will always either be 1 or 2 (representing player 1 and 2 respectively)
         dice = new Random();
+        diceTexture = -1;
+
+        reader = new Scanner(System.in);
         turnCount = 0;
-        diceRoll = 0;
+
+        diceRoll = -1;
+
         completedBlackStoneCount = 0;
         completeWhiteStoneCount = 0;
 
@@ -157,9 +166,11 @@ public class MoveManager {
 
 
     public void rollDice(){
-        diceRoll = dice.nextInt(4);
+        diceRoll = dice.nextInt(5);
+        diceTexture = diceRoll;
         if(diceRoll ==0){
             turnCount++;
+            diceTexture = 0;
             System.out.println("TURN SKIPPED");
             diceRollPermisssion = true;
 
@@ -175,15 +186,21 @@ public class MoveManager {
         }
     }
 
-    //used to check if a players turn is in progress
+    //used to set that a players turn is in progress
     public void diceRollInProgress(){
+        diceTexture = -1;
         diceRollPermisssion = false;
     }
 
     public void stoneNextTurn(StoneObjects stoneJustMoved){
         stoneJustMoved.stoneClicked(diceRoll);
+
+        //fixes an issue that would result in a "go again" not working
+        try{Thread.sleep(20);} catch (InterruptedException e){System.out.println("Sleep error in MovementManager "+e);}
+
         if(stoneJustMoved.isStoneOnSafeSpace() == true){
             diceRollPermisssion = true;
+            diceTexture = -2;
             System.out.println("GO AGAIN");
         }
         else{
@@ -201,6 +218,7 @@ public class MoveManager {
     public void nextTurn(){
         turnCount++;
         diceRollPermisssion  = true;
+        diceTexture = -1;
     }
 
     public boolean winCheck(){
@@ -268,12 +286,14 @@ public class MoveManager {
     public boolean diceRollPermisssionStatus(){
         return diceRollPermisssion;
     }
-
     public int getTurnCount(){
         return turnCount;
     }
-
     public int getDiceRoll(){
         return diceRoll;
     }
+    public int getDiceTexture(){
+        return diceTexture;
+    }
+
 }

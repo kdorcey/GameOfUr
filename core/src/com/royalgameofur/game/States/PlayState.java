@@ -19,17 +19,19 @@ public class PlayState extends State {
     //squares go from left to right from 0-7. 4 and 5 are invisible in rows 0 and 1
     //rows 0 and 2 have safe spaces at 0 and 6
     //row 2 has a safe space at 3
-    private static Sprite square[][];
-    private Texture dicePool;
-    private Texture diceRoll0, diceRoll1, diceRoll2, diceRoll3;
+    private Sprite square[][];
+    private final Sprite whiteTurnNotification;
+    private final Sprite blackTurnNotification;
     private static Texture background;
-
-    private Sprite dice;
+    private boolean blackTurn;
+    private boolean whiteTurn;
+    private boolean rollDiceTexture;
 
     private StoneObjects stoneObjectsManager;
 
     private HashMap<Integer, Sprite> blackStonePoolTextures;
     private HashMap<Integer, Sprite> whiteStonePoolTextures;
+    private HashMap<Integer, Sprite> boardSquareTextures;
     private HashMap<Integer, Sprite> diceTextures;
 
     private ArrayList<Integer> whiteStonesOnBoard;
@@ -39,15 +41,26 @@ public class PlayState extends State {
 
     protected PlayState(GameStateManager gsm) {
         super(gsm);
+        blackTurn = false;
+        whiteTurn = false;
+        rollDiceTexture = true;
+        blackTurnNotification = new Sprite(new TextureRegion(new Texture("BlackTurn.png")));
+        blackTurnNotification.setPosition(20,200);
+        whiteTurnNotification = new Sprite(new TextureRegion (new Texture("WhiteTurn.png")));
+        whiteTurnNotification.setPosition(400,200);
+
         gameRunner = new MoveManager();
 
         background = new Texture("PlayStateBackground.jpg");
 
         diceTextures = new HashMap<Integer, Sprite>();
-        diceTextures.put(0, new Sprite(new TextureRegion(new Texture("DiceRoll0.png"))));
+        diceTextures.put(-2, new Sprite(new TextureRegion(new Texture("RollAgain.png"))));
+        diceTextures.put(-1, new Sprite(new TextureRegion(new Texture("RollDice.png"))));
+        diceTextures.put(0, new Sprite(new TextureRegion(new Texture("TurnSkipped.png"))));
         diceTextures.put(1, new Sprite(new TextureRegion(new Texture("DiceRoll1.png"))));
         diceTextures.put(2, new Sprite(new TextureRegion(new Texture("DiceRoll2.png"))));
         diceTextures.put(3, new Sprite(new TextureRegion(new Texture("DiceRoll3.png"))));
+        diceTextures.put(4, new Sprite(new TextureRegion(new Texture("DiceRoll4.png"))));
 
 
         whiteStonePoolTextures = fillStonePoolTextures(1);
@@ -59,7 +72,16 @@ public class PlayState extends State {
         blackStonesOnBoard = new ArrayList<Integer>(); //used to keep track of white stones on board
         whiteStonesOnBoard = new ArrayList<Integer>(); //used to keep track of black stones on board
 
-        createSquares();
+        boardSquareTextures = new HashMap<Integer, Sprite>();
+        boardSquareTextures.put(0, new Sprite(new TextureRegion(new Texture("invisibleSquare.jpg"))));
+        boardSquareTextures.put(1, new Sprite(new TextureRegion(new Texture("Space1.png"))));
+        boardSquareTextures.put(2, new Sprite(new TextureRegion(new Texture("Space2.png"))));
+        boardSquareTextures.put(3, new Sprite(new TextureRegion(new Texture("Space3.png"))));
+        boardSquareTextures.put(4, new Sprite(new TextureRegion(new Texture("Space4.png"))));
+        boardSquareTextures.put(5, new Sprite(new TextureRegion(new Texture("Space5.png"))));
+        boardSquareTextures.put(6, new Sprite(new TextureRegion(new Texture("SafeSpace.png"))));
+
+        square = createSquares(boardSquareTextures);
 
         stoneObjectsManager = new StoneObjects(2);
     }
@@ -89,20 +111,61 @@ public class PlayState extends State {
     }
 
 
-    private static void createSquares(){
+    private static Sprite[][] createSquares(HashMap<Integer, Sprite> boardSquareTextures){
         //will probably be used to instantiate "Square" objects later on but rn it's just adding the square sprites
         //squares are 88x88
+        Sprite square[][] = new Sprite[8][3];
+        int squareCounter = 0;
+        int textureSelect = 0;
         int yPosition = 0;
         int xPosition = 108;
+
+
+
         for(int y=0; y<8; y++){
             for(int x=0; x<3; x++){
+
                 if ((y==4 && x==0) || (y==4 && x==2) || (y==5 && x==0) || (y==5 && x==2) ){
-                    square[y][x] = new Sprite(new Texture("invisibleSquare.jpg"));
+                    //square[y][x] = boardSquareTextures.get(0);
+                    textureSelect = 0;
+
+                }
+                else if((y==0 && x==0)||(y==0 && x==2)||(y==3 && x==1) || (y==6 && x==0) ||(y== 6 && x==2)){
+                    //square[y][x] = boardSquareTextures.get(6);
+                    textureSelect = 6;
+                }
+                else if((y==1 && x==0) || (y == 1 && x==2) || (y==3 && x==0) || (y==3 && x==2) || (y==6 && x==1)){
+                    //square[y][x] = new Sprite(new Texture("square0.0.jpg"));
+                    //square[y][x] = boardSquareTextures.get(1);
+                    textureSelect = 1;
+                }
+                else if((y==2 && x==0) || (y==2 && x ==2) || (y==1 && x==1) || (y==4 && x==1)||(y==7 && x ==1)){
+                    //square[y][x] = boardSquareTextures.get(2);
+                    textureSelect = 2;
+
+                }
+                else if(y==0 && x==1){
+                    //square[y][x] = boardSquareTextures.get(3);
+                    textureSelect = 3;
+
+                }
+                else if((y==2 && x==1) || (y==5 && x==1)){
+                    //square[y][x] = boardSquareTextures.get(4);
+                    textureSelect = 4;
+
+                }
+                else if((y==7 && x==0)||(y==7 && x==2)){
+                    //square[y][x] = boardSquareTextures.get(5);
+                    textureSelect =5;
 
                 }
                 else{
-                    square[y][x] = new Sprite(new Texture("square0.0.jpg"));
+                    //square[y][x] = new Sprite(new Texture("square0.0.jpg"));
+                    System.out.println("y: "+y+" x: "+x+"invis");
                 }
+                System.out.println("y: "+y+" x: "+x+" "+textureSelect);
+
+                square[y][x] = new Sprite (boardSquareTextures.get(textureSelect));
                 if(y==0){
                     yPosition=100;
                 }
@@ -111,16 +174,19 @@ public class PlayState extends State {
                 }
                 square[y][x].setPosition(xPosition,yPosition);
 
+
+
                 xPosition +=88;
             }
             yPosition += 88;
+
         }
+        return square;
     }
 
     @Override
     protected void handleInput() {
         if(Gdx.input.justTouched()) {
-            System.out.println(Gdx.input.getX() + ", " + (Gdx.input.getY()));
 
             handleDiceClick();
             handleStonePoolClick();
@@ -152,8 +218,7 @@ public class PlayState extends State {
             {
 
                 gameRunner.stoneNextTurn(stoneToCheck);
-                /// /stoneToCheck.stoneClicked(gameRunner.getDiceRoll());
-                //gameRunner.nextTurn();
+
             }
         }
         //same as above but for black stones
@@ -164,8 +229,7 @@ public class PlayState extends State {
                     && gameRunner.diceRollPermisssionStatus() == false && gameRunner.legalMoveCheck(2, blackStones))
             {
                 gameRunner.stoneNextTurn(stoneToCheck);
-                //stoneToCheck.stoneClicked(gameRunner.getDiceRoll());
-                //gameRunner.nextTurn();
+
             }
         }
     }
@@ -176,10 +240,10 @@ public class PlayState extends State {
                 GameOfUrDemo.height - Gdx.input.getY())) && gameRunner.getPlayerTurnNumber() == 2 && gameRunner.diceRollPermisssionStatus() == false
                 && gameRunner.stonePoolLegalMoveCheck(2) == true)
         {
-            System.out.println("Black Move");
 
-            gameRunner.deployBlackStone().stoneClicked(gameRunner.getDiceRoll());
-            gameRunner.nextTurn();
+            //gameRunner.deployBlackStone().stoneClicked (gameRunner.getDiceRoll());
+            //gameRunner.nextTurn();
+            gameRunner.stoneNextTurn(gameRunner.deployBlackStone());
         }
 
         //checks if the white stone pool was clicked
@@ -187,15 +251,26 @@ public class PlayState extends State {
                 && gameRunner.getPlayerTurnNumber() ==1 && gameRunner.diceRollPermisssionStatus() == false
                 && gameRunner.stonePoolLegalMoveCheck(1) == true)
         {
-            System.out.println("White Move");
-            gameRunner.deployWhiteStone().stoneClicked(gameRunner.getDiceRoll());
-            gameRunner.nextTurn();
+            //gameRunner.deployWhiteStone().stoneClicked(gameRunner.getDiceRoll());
+            //gameRunner.nextTurn();
+            gameRunner.stoneNextTurn(gameRunner.deployWhiteStone());
         }
     }
 
     @Override
     public void update(float deltaTime) {
+        gameRunner.winCheck();
         handleInput();
+        if(gameRunner.getTurnCount()%2 != 0){
+            whiteTurn = true;
+            blackTurn = false;
+        }
+        else if(gameRunner.getTurnCount()%2 == 0 || gameRunner.getTurnCount()==0){
+            whiteTurn = false;
+            blackTurn = true;
+        }
+
+
 
     }
 
@@ -213,8 +288,20 @@ public class PlayState extends State {
                 square[y][x].draw(sb);
             }
         }
-        diceTextures.get(gameRunner.getDiceRoll()).setPosition(102, 0);
-        diceTextures.get(gameRunner.getDiceRoll()).draw(sb);
+
+        if(whiteTurn){
+            whiteTurnNotification.draw(sb);
+
+        }
+        if(blackTurn){
+            blackTurnNotification.draw(sb);
+        }
+
+        Sprite dice;
+        dice = diceTextures.get(gameRunner.getDiceTexture());
+        dice.setPosition(102, 0);
+        dice.draw(sb);
+
 
         blackStonePoolTextures.get(gameRunner.getUnusedBlackStones().size()).setPosition(20,500);
         blackStonePoolTextures.get(gameRunner.getUnusedBlackStones().size()).draw(sb);
@@ -222,6 +309,7 @@ public class PlayState extends State {
         whiteStonePoolTextures.get(gameRunner.getUnusedWhiteStones().size()).draw(sb);
 
         updateStonePosition(sb);
+
 
         sb.end();
     }

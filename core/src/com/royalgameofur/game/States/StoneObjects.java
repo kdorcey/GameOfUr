@@ -97,6 +97,7 @@ public class StoneObjects {
 
     public void stoneClicked(int diceRoll){
         totalMoves += diceRoll;
+        System.out.println("total move" +totalMoves);
         if(diceRoll !=0) {
             if (color == 1) {
                 currentX = (int) whiteMoveSet.get(totalMoves).getX();
@@ -123,10 +124,10 @@ public class StoneObjects {
 
     public void moveX(){
         if(currentX>lastX){
-            lastX++;
+            lastX += 2;
         }
         else if (currentX<lastX){
-            lastX--;
+            lastX -= 2;
         }
         else{
             System.out.println("end x "+lastX+" = "+currentX);
@@ -134,10 +135,10 @@ public class StoneObjects {
     }
     public void moveY(){
         if(currentY>lastY){
-            lastY++;
+            lastY+=2;
         }
         else if (currentY<lastY){
-            lastY--;
+            lastY-=2;
         }
         else{
             System.out.printf("end y "+lastY +" = "+currentY);
@@ -175,7 +176,6 @@ public class StoneObjects {
             //sets all x values
             if(playerNumber == 1){
                 if(i==0 || i == 15){
-                    System.out.println("white");
                     x = 0;
                 }
                 else if(i<=4 || i> 12 && i != 15) {
@@ -185,7 +185,6 @@ public class StoneObjects {
             }
             else if (playerNumber == 2){
                 if(i == 0 || i == 15){
-                    System.out.println("black");
                     x = 480;
                 }
                 else if (i<=4 || i>12 && i !=15){
@@ -212,7 +211,7 @@ public class StoneObjects {
 
 
             moveSet.put(i, new Point2D.Double(x,y));
-            System.out.println(i+" "+x+", "+y);
+
             if(i == 0){
                 y = 364;
             }
