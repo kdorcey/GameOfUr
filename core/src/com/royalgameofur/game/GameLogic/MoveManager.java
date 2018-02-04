@@ -72,6 +72,8 @@ public class MoveManager {
 
         diceRollPermisssion = true;
     }
+
+
     public boolean stonePoolLegalMoveCheck(int colorToCheck){
         boolean poolLegalCheck = true;
         StoneObjects testStone = new StoneObjects(1);
@@ -117,13 +119,14 @@ public class MoveManager {
 
         //makes sure that the stone is only finishing with a legal
         if(stoneToCheck.getTotalMoves() + diceRoll >15){
-            return legalCheck;
+            legalCheck = false;
         }
         else{
             //checks that a player doesn't land on their own piece
             if(colorToCheck == 1){
                 for(int whiteStoneToCheck:whiteStonesInUse){
-                    if(whiteStones[whiteStoneToCheck].getCurrentLocation().equals(testMove)){
+                    if(!whiteStones[whiteStoneToCheck].isFinished()
+                            &&whiteStones[whiteStoneToCheck].getCurrentLocation().equals(testMove)) {
                         legalCheck = false;
                         return legalCheck;
                     }
@@ -132,14 +135,14 @@ public class MoveManager {
                 //in the event that it would land on an enemy stone, this makes sure that
                 //the enemy stone is not on a safe space
                 for(int blackStonesToCheck:blackStonesInUse){
-                    if(blackStones[blackStonesToCheck].getCurrentLocation().equals(testMove)){
-                        if(blackStones[blackStonesToCheck].isStoneOnSafeSpace()){
+                    if(!blackStones[blackStonesToCheck].isFinished()
+                            &&blackStones[blackStonesToCheck].getCurrentLocation().equals(testMove)){
                             legalCheck = false;
                             return legalCheck;
                         }
                     }
                 }
-            }
+
             else if(colorToCheck ==2){
                 for(int blackStoneToCheck:blackStonesInUse){
                     if(blackStones[blackStoneToCheck].getCurrentLocation().equals(testMove)){
@@ -160,8 +163,8 @@ public class MoveManager {
                 }
             }
 
-            return legalCheck;
         }
+        return legalCheck;
     }
 
 
@@ -195,6 +198,21 @@ public class MoveManager {
     public void stoneNextTurn(StoneObjects stoneJustMoved){
         stoneJustMoved.stoneClicked(diceRoll);
 
+        if(stoneJustMoved.getColor() ==1){
+            for(int i = 0; i<blackStones.length; i++){
+                if(stoneJustMoved.getCurrentLocation().equals(blackStones[i].getCurrentLocation())){
+                    resetBlackStones(i);
+                }
+            }
+        }
+        if(stoneJustMoved.getColor() ==2){
+            for(int i = 0; i<whiteStones.length; i++){
+                if(stoneJustMoved.getCurrentLocation().equals(whiteStones[i].getCurrentLocation())){
+                    resetWhiteStone(i);
+                }
+            }
+        }
+
         //fixes an issue that would result in a "go again" not working
         try{Thread.sleep(20);} catch (InterruptedException e){System.out.println("Sleep error in MovementManager "+e);}
 
@@ -206,6 +224,7 @@ public class MoveManager {
         else{
             if(stoneJustMoved.getTotalMoves() == 15){
                 if(stoneJustMoved.getColor() ==1){
+
                     completeWhiteStoneCount++;
                 }
                 else if (stoneJustMoved.getColor() ==2){
@@ -256,11 +275,15 @@ public class MoveManager {
 
     public void resetWhiteStone(int whiteStoneNumber){
         unusedWhiteStones.push(whiteStoneNumber);
-        whiteStonesInUse.remove(whiteStoneNumber);
+        whiteStonesInUse.remove((Integer)whiteStoneNumber);
+        System.out.println("here");
+        whiteStones[whiteStoneNumber].resetStone();
     }
     public void resetBlackStones(int blackStoneNumber){
         unusedBlackStones.push(blackStoneNumber);
-        blackStonesInUse.remove(blackStoneNumber);
+        blackStonesInUse.remove((Integer)blackStoneNumber);
+        System.out.println("here");
+        blackStones[blackStoneNumber].resetStone();
     }
 
     public ArrayList<Integer> getWhiteStonesInUse(){

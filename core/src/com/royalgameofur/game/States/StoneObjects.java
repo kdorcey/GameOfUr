@@ -37,6 +37,7 @@ public class StoneObjects {
     private Stones playerStones[];
     private java.util.List<Integer> safeSpaces;
     private boolean onSafeSpace;
+    private boolean finished;
     private boolean goAgain; //this is only true immediately after a stone lands on a safe space. After that player goes again it is set to false
 
     private  HashMap<Integer, Point2D.Double> whiteMoveSet = new HashMap<Integer, Point2D.Double>();
@@ -44,6 +45,7 @@ public class StoneObjects {
 
     public StoneObjects(int color) {
         //color = 1 if white, color = 2 black
+        finished = false;
         this.color = color;
         this.safeSpaces = Arrays.asList(4,8,14);
         this.whiteMoveSet = defineMoveSet(1);
@@ -97,6 +99,9 @@ public class StoneObjects {
 
     public void stoneClicked(int diceRoll){
         totalMoves += diceRoll;
+        if (totalMoves == 15) {
+            finished = true;
+        }
         System.out.println("total move" +totalMoves);
         if(diceRoll !=0) {
             if (color == 1) {
@@ -164,6 +169,23 @@ public class StoneObjects {
     public int getColor() {
         return color;
     }
+    public void resetStone(){
+        totalMoves = 0;
+        if(color == 1 ){
+            currentX = 300;
+            currentY = 500;
+            lastX = currentX;
+            lastY = currentY;
+            currentLocation = whiteMoveSet.get(totalMoves);
+        }
+        else if (color == 2){
+            currentX = 20;
+            currentY = 500;
+            lastX = currentX;
+            lastY = currentY;
+            currentLocation = blackMoveSet.get(totalMoves);
+        }
+    }
 
     public static HashMap defineMoveSet(int playerNumber){
         HashMap<Integer, Point2D.Double> moveSet = new HashMap<Integer, Point2D.Double>();
@@ -227,6 +249,9 @@ public class StoneObjects {
     }
     public HashMap<Integer, Point2D.Double> getBlackMoveSet(){
         return blackMoveSet;
+    }
+    public boolean isFinished(){
+        return finished;
     }
 
 
