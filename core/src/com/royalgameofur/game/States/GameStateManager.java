@@ -21,7 +21,7 @@ public class GameStateManager {
     }
 
     public void pop(){
-        states.pop(); //takes stuff off the states no need to return
+        states.pop().dispose(); //takes stuff off the states no need to return
     }
 
     public void set(State state){

@@ -51,7 +51,8 @@ public class MenuState extends State {
             if (playLocalButtonListener.contains(Gdx.input.getX(), Gdx.input.getY())) {
                 System.out.println("play local pressed");
                 gsm.set(new PlayState(gsm));
-                dispose();
+                //dispose();
+
             }
             if (hostOnlineButtonListener.contains(Gdx.input.getX(), Gdx.input.getY())){
                 System.out.println("host online pressed");

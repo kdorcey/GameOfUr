@@ -3,20 +3,11 @@ package com.royalgameofur.game.States;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.List;
-import com.badlogic.gdx.utils.Array;
-import com.royalgameofur.game.GameLogic.PlayerStones;
-import com.royalgameofur.game.GameLogic_CurrentlyUnused.StoneTest;
 import com.royalgameofur.game.GameLogic_CurrentlyUnused.Stones;
 
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Vector;
 
 /**
  * Created by Kyle on 1/28/2018.
@@ -102,7 +93,6 @@ public class StoneObjects {
         if (totalMoves == 15) {
             finished = true;
         }
-        System.out.println("total move" +totalMoves);
         if(diceRoll !=0) {
             if (color == 1) {
                 currentX = (int) whiteMoveSet.get(totalMoves).getX();
@@ -134,9 +124,7 @@ public class StoneObjects {
         else if (currentX<lastX){
             lastX -= 2;
         }
-        else{
-            System.out.println("end x "+lastX+" = "+currentX);
-        }
+
     }
     public void moveY(){
         if(currentY>lastY){
@@ -145,9 +133,7 @@ public class StoneObjects {
         else if (currentY<lastY){
             lastY-=2;
         }
-        else{
-            System.out.printf("end y "+lastY +" = "+currentY);
-        }
+
     }
 
     public int getLastX(){
@@ -187,16 +173,17 @@ public class StoneObjects {
         }
     }
 
-    public static HashMap defineMoveSet(int playerNumber){
+    public static HashMap defineMoveSet(int colorNumber){
+        //colorNumber ==1 white, colorNumber ==2 black
         HashMap<Integer, Point2D.Double> moveSet = new HashMap<Integer, Point2D.Double>();
 
         int x = 0;
         int y = 364;
-        for(int i = 0; i<=15; i++){
+        for(int i = 0; i<15; i++){
             x = 196;
 
             //sets all x values
-            if(playerNumber == 1){
+            if(colorNumber == 1){
                 if(i==0 || i == 15){
                     x = 0;
                 }
@@ -205,7 +192,7 @@ public class StoneObjects {
                 }
 
             }
-            else if (playerNumber == 2){
+            else if (colorNumber == 2){
                 if(i == 0 || i == 15){
                     x = 480;
                 }
@@ -237,6 +224,13 @@ public class StoneObjects {
             if(i == 0){
                 y = 364;
             }
+        }
+
+        if(colorNumber ==2){
+            moveSet.put(15, new Point2D.Double(40,680));
+        }
+        else if (colorNumber ==1){
+            moveSet.put(15, new Point2D.Double(440, 680));
         }
 
 

@@ -128,7 +128,7 @@ public class MoveManager {
                     if(!whiteStones[whiteStoneToCheck].isFinished()
                             &&whiteStones[whiteStoneToCheck].getCurrentLocation().equals(testMove)) {
                         legalCheck = false;
-                        return legalCheck;
+
                     }
                 }
 
@@ -137,8 +137,10 @@ public class MoveManager {
                 for(int blackStonesToCheck:blackStonesInUse){
                     if(!blackStones[blackStonesToCheck].isFinished()
                             &&blackStones[blackStonesToCheck].getCurrentLocation().equals(testMove)){
-                            legalCheck = false;
-                            return legalCheck;
+                        if(blackStones[blackStonesToCheck].isStoneOnSafeSpace()) {
+                                legalCheck = false;
+                            }
+
                         }
                     }
                 }
@@ -147,7 +149,6 @@ public class MoveManager {
                 for(int blackStoneToCheck:blackStonesInUse){
                     if(blackStones[blackStoneToCheck].getCurrentLocation().equals(testMove)){
                         legalCheck = false;
-                        return legalCheck;
                     }
 
                 }
@@ -157,7 +158,8 @@ public class MoveManager {
                     if(whiteStones[whiteStoneToCheck].getCurrentLocation().equals(testMove)){
                         if(whiteStones[whiteStoneToCheck].isStoneOnSafeSpace()){
                             legalCheck = false;
-                            return legalCheck;
+
+
                         }
                     }
                 }
@@ -174,7 +176,6 @@ public class MoveManager {
         if(diceRoll ==0){
             turnCount++;
             diceTexture = 0;
-            System.out.println("TURN SKIPPED");
             diceRollPermisssion = true;
 
         }
@@ -219,7 +220,6 @@ public class MoveManager {
         if(stoneJustMoved.isStoneOnSafeSpace() == true){
             diceRollPermisssion = true;
             diceTexture = -2;
-            System.out.println("GO AGAIN");
         }
         else{
             if(stoneJustMoved.getTotalMoves() == 15){
@@ -276,13 +276,11 @@ public class MoveManager {
     public void resetWhiteStone(int whiteStoneNumber){
         unusedWhiteStones.push(whiteStoneNumber);
         whiteStonesInUse.remove((Integer)whiteStoneNumber);
-        System.out.println("here");
         whiteStones[whiteStoneNumber].resetStone();
     }
     public void resetBlackStones(int blackStoneNumber){
         unusedBlackStones.push(blackStoneNumber);
         blackStonesInUse.remove((Integer)blackStoneNumber);
-        System.out.println("here");
         blackStones[blackStoneNumber].resetStone();
     }
 
@@ -317,6 +315,13 @@ public class MoveManager {
     }
     public int getDiceTexture(){
         return diceTexture;
+    }
+
+    public int getCompletedBlackStoneCount(){
+        return completedBlackStoneCount;
+    }
+    public int getCompleteWhiteStoneCount(){
+        return completeWhiteStoneCount;
     }
 
 }

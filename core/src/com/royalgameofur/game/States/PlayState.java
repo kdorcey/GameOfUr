@@ -1,11 +1,13 @@
 package com.royalgameofur.game.States;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.royalgameofur.game.GameLogic.MoveManager;
 import com.royalgameofur.game.GameOfUrDemo;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +21,10 @@ public class PlayState extends State {
     //squares go from left to right from 0-7. 4 and 5 are invisible in rows 0 and 1
     //rows 0 and 2 have safe spaces at 0 and 6
     //row 2 has a safe space at 3
+    private static AssetManager assets;
     private Sprite square[][];
+    private Sprite pauseGear;
+    private Sprite helpButton;
     private final Sprite whiteTurnNotification;
     private final Sprite blackTurnNotification;
     private static Texture background;
@@ -33,6 +38,8 @@ public class PlayState extends State {
     private HashMap<Integer, Sprite> whiteStonePoolTextures;
     private HashMap<Integer, Sprite> boardSquareTextures;
     private HashMap<Integer, Sprite> diceTextures;
+    private HashMap<Integer, Sprite> finishedBlackStoneTextures;
+    private HashMap<Integer, Sprite> finishedWhiteStoneTextures;
 
     private ArrayList<Integer> whiteStonesOnBoard;
     private ArrayList<Integer> blackStonesOnBoard;
@@ -44,13 +51,17 @@ public class PlayState extends State {
         blackTurn = false;
         whiteTurn = false;
         rollDiceTexture = true;
-        blackTurnNotification = new Sprite(new TextureRegion(new Texture("BlackTurn.png")));
+        blackTurnNotification = new Sprite(new TextureRegion(assets.get("BlackTurn.png", Texture.class)));
         blackTurnNotification.setPosition(20,200);
         whiteTurnNotification = new Sprite(new TextureRegion (new Texture("WhiteTurn.png")));
         whiteTurnNotification.setPosition(400,200);
 
         gameRunner = new MoveManager();
 
+        pauseGear = new Sprite (new TextureRegion(new Texture("PauseGear.png")));
+        pauseGear.setPosition(400,20);
+        helpButton = new Sprite (new TextureRegion(new Texture("Help.png")));
+        helpButton.setPosition(20,20);
         background = new Texture("PlayStateBackground.jpg");
 
         diceTextures = new HashMap<Integer, Sprite>();
@@ -65,6 +76,10 @@ public class PlayState extends State {
 
         whiteStonePoolTextures = fillStonePoolTextures(1);
         blackStonePoolTextures = fillStonePoolTextures(2);
+
+        finishedWhiteStoneTextures = fillFinishedStoneTextures(1);
+        finishedBlackStoneTextures = fillFinishedStoneTextures(2);
+
 
 
         square = new Sprite[8][3];
@@ -85,10 +100,45 @@ public class PlayState extends State {
 
         stoneObjectsManager = new StoneObjects(2);
     }
+
+    private static void loadAssetManager(){
+        assets.load("BlackPieceTemp.png", Texture.class);
+        assets.load("BlackTurn.png", Texture.class);
+    }
+
+    private static HashMap<Integer, Sprite> fillFinishedStoneTextures(int stonePoolColor){
+        HashMap<Integer, Sprite> filledHashMap = new HashMap<Integer, Sprite>();
+        if(stonePoolColor ==1){
+            filledHashMap.put(0, new Sprite(new TextureRegion(new Texture("PlayStateBackground.jpg"))));
+            filledHashMap.get(0).setSize(80,200);
+            filledHashMap.put(1, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones1.png"))));
+            filledHashMap.put(2, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones2.png"))));
+            filledHashMap.put(3, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones3.png"))));
+            filledHashMap.put(4, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones4.png"))));
+            filledHashMap.put(5, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones5.png"))));
+            filledHashMap.put(6, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones6.png"))));
+            filledHashMap.put(7, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones7.png"))));
+        }
+        else if(stonePoolColor ==2){
+            filledHashMap.put(0, new Sprite(new TextureRegion(new Texture("PlayStateBackground.jpg"))));
+            filledHashMap.get(0).setSize(80,200);
+            filledHashMap.put(1, new Sprite(new TextureRegion(new Texture("FinishedBlackStones1.png"))));
+            filledHashMap.put(2, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones2.png"))));
+            filledHashMap.put(3, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones3.png"))));
+            filledHashMap.put(4, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones4.png"))));
+            filledHashMap.put(5, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones5.png"))));
+            filledHashMap.put(6, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones6.png"))));
+            filledHashMap.put(7, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones7.png"))));
+        }
+        return filledHashMap;
+    }
+
     private static HashMap<Integer, Sprite> fillStonePoolTextures(int stonePoolColor){
         //color =1 when white, color =2 when black
         HashMap<Integer, Sprite> filledHashMap = new HashMap<Integer, Sprite>();
         if(stonePoolColor ==1){
+            filledHashMap.put(0, new Sprite(new TextureRegion(new Texture("PlayStateBackground.jpg"))));
+            filledHashMap.get(0).setSize(160,120);
             filledHashMap.put(1,new Sprite(new TextureRegion(new Texture("WhiteStonePool1.png"))));
             filledHashMap.put(2,new Sprite(new TextureRegion(new Texture("WhiteStonePool2.png"))));
             filledHashMap.put(3,new Sprite(new TextureRegion(new Texture("WhiteStonePool3.png"))));
@@ -98,6 +148,8 @@ public class PlayState extends State {
             filledHashMap.put(7,new Sprite(new TextureRegion(new Texture("WhiteStonePool7.png"))));
         }
         else if(stonePoolColor ==2) {
+            filledHashMap.put(0, new Sprite(new TextureRegion(new Texture("PlayStateBackground.jpg"))));
+            filledHashMap.get(0).setSize(160,120);
             filledHashMap.put(1,new Sprite(new TextureRegion(new Texture("BlackStonePool1.png"))));
             filledHashMap.put(2,new Sprite(new TextureRegion(new Texture("BlackStonePool2.png"))));
             filledHashMap.put(3,new Sprite(new TextureRegion(new Texture("BlackStonePool3.png"))));
@@ -159,11 +211,7 @@ public class PlayState extends State {
                     textureSelect =5;
 
                 }
-                else{
-                    //square[y][x] = new Sprite(new Texture("square0.0.jpg"));
-                    System.out.println("y: "+y+" x: "+x+"invis");
-                }
-                System.out.println("y: "+y+" x: "+x+" "+textureSelect);
+
 
                 square[y][x] = new Sprite (boardSquareTextures.get(textureSelect));
                 if(y==0){
@@ -192,6 +240,10 @@ public class PlayState extends State {
             handleStonePoolClick();
             handleStoneClick();
 
+            if(helpButton.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())){
+                gsm.push(new HelpState(gsm));
+            }
+
 
         }
     }
@@ -202,7 +254,6 @@ public class PlayState extends State {
 
             gameRunner.diceRollInProgress();
             gameRunner.rollDice();
-            System.out.println("Dice Rolled " + gameRunner.getDiceRoll());
 
         }
     }
@@ -283,6 +334,8 @@ public class PlayState extends State {
     public void render(SpriteBatch sb) {
         sb.begin();
         sb.draw(background,0,0, GameOfUrDemo.width, GameOfUrDemo.height);
+        pauseGear.draw(sb);
+        helpButton.draw(sb);
         for(int y=0; y<8; y++){
             for(int x=0; x<3; x++){
                 square[y][x].draw(sb);
@@ -302,7 +355,9 @@ public class PlayState extends State {
         dice.setPosition(102, 0);
         dice.draw(sb);
 
-
+        finishedBlackStoneTextures.get(gameRunner.getCompletedBlackStoneCount()).setPosition(0,600);
+        finishedBlackStoneTextures.get(gameRunner.getCompletedBlackStoneCount()).draw(sb);
+        finishedWhiteStoneTextures.get(gameRunner.getCompleteWhiteStoneCount()).setPosition(400,600);
         blackStonePoolTextures.get(gameRunner.getUnusedBlackStones().size()).setPosition(20,500);
         blackStonePoolTextures.get(gameRunner.getUnusedBlackStones().size()).draw(sb);
         whiteStonePoolTextures.get(gameRunner.getUnusedWhiteStones().size()).setPosition(300,500);
@@ -328,7 +383,9 @@ public class PlayState extends State {
             }
 
             stoneToUpdate.getStone().setPosition(stoneToUpdate.getLastX(), stoneToUpdate.getLastY());
-            stoneToUpdate.getStone().draw(sb);
+            if(stoneToUpdate.getTotalMoves() != 15) {
+                stoneToUpdate.getStone().draw(sb);
+            }
         }
 
         for(int whiteStoneNumber : gameRunner.getWhiteStonesInUse()){
@@ -344,7 +401,9 @@ public class PlayState extends State {
             }
 
             stoneToUpdate.getStone().setPosition(stoneToUpdate.getLastX(), stoneToUpdate.getLastY());
-            stoneToUpdate.getStone().draw(sb);
+            if(stoneToUpdate.getTotalMoves() !=15) {
+                stoneToUpdate.getStone().draw(sb);
+            }
         }
     }
 
