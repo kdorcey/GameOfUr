@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.royalgameofur.game.GameOfUrDemo;
 
 /**
@@ -21,9 +22,11 @@ public class MenuState extends State {
     private Sprite playLocalButton;
     private Sprite hostOnlineButton;
     private Sprite playOnlineButton;
+    private Vector3 touchpoint = new Vector3();
 
     public MenuState(GameStateManager gsm) {
         super(gsm);
+        camera.setToOrtho(false, GameOfUrDemo.width, GameOfUrDemo.height);
         title = new Texture("BetterTitle.jpg");
         background = new Texture("Background.jpg");
         playLocalButtonTexture = new Texture("NewLocal.jpg");
@@ -45,21 +48,24 @@ public class MenuState extends State {
     public void handleInput() {
         if (Gdx.input.justTouched()) {
             //for some reason when drawing sprites it draws from top left to bottom right. When drawing rectangles it's bottom left to top right.
-            Rectangle playLocalButtonListener = new Rectangle(playLocalButton.getX(),GameOfUrDemo.height-playLocalButton.getY()-playLocalButton.getHeight(), playLocalButton.getWidth(), playLocalButton.getHeight());
-            Rectangle hostOnlineButtonListener = new Rectangle(hostOnlineButton.getX(),GameOfUrDemo.height-hostOnlineButton.getY()-hostOnlineButton.getHeight(), hostOnlineButton.getWidth(), hostOnlineButton.getHeight());
-            Rectangle playOnlineButtonListener = new Rectangle(playOnlineButton.getX(),GameOfUrDemo.height-playOnlineButton.getY()-playOnlineButton.getHeight(), playOnlineButton.getWidth(), playOnlineButton.getHeight());
-            if (playLocalButtonListener.contains(Gdx.input.getX(), Gdx.input.getY())) {
+
+            camera.unproject(touchpoint.set(Gdx.input.getX(0), Gdx.input.getY(0),0));
+            System.out.println(touchpoint.x+", "+touchpoint.y);
+            if(playLocalButton.getBoundingRectangle().contains(touchpoint.x,touchpoint.y))
+            //if (playLocalButtonListener.contains(Gdx.input.getX(), Gdx.input.getY()))
+            {
                 System.out.println("play local pressed");
                 gsm.set(new PlayState(gsm));
                 //dispose();
 
-            }
-            if (hostOnlineButtonListener.contains(Gdx.input.getX(), Gdx.input.getY())){
+            }/*
+            if (hostOnlineButton.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height- Gdx.input.getY())){
                 System.out.println("host online pressed");
             }
-            if (playOnlineButtonListener.contains(Gdx.input.getX(), Gdx.input.getY())){
+            if (playOnlineButton.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())){
                 System.out.println("play online pressed");
             }
+            */
 
         }
     }
@@ -71,6 +77,7 @@ public class MenuState extends State {
 
     @Override
     public void render(SpriteBatch sb) {
+        sb.setProjectionMatrix(camera.combined);
         sb.begin();
         sb.draw(background, 0, 0, GameOfUrDemo.width, GameOfUrDemo.height);
         sb.draw(title, (float) (GameOfUrDemo.width - (GameOfUrDemo.width * .92)), (float) ((GameOfUrDemo.height * .75)));

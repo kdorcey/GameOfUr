@@ -109,7 +109,7 @@ public class MoveManager {
     public boolean legalMoveCheck(int colorToCheck, int stoneNumberToCheck){
         //colorToCheck = 1 when white, colorToCheck = 2 when black
         boolean legalCheck = true;
-        Point2D.Double testMove = new Point2D.Double();
+        Point testMove = new Point();
         StoneObjects stoneToCheck = new StoneObjects(1);
 
         if(colorToCheck == 1){stoneToCheck = whiteStones[stoneNumberToCheck];}

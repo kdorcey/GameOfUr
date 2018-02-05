@@ -1,13 +1,14 @@
 package com.royalgameofur.game.States;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector3;
 import com.royalgameofur.game.GameLogic.MoveManager;
 import com.royalgameofur.game.GameOfUrDemo;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,13 +46,15 @@ public class PlayState extends State {
     private ArrayList<Integer> blackStonesOnBoard;
 
     private MoveManager gameRunner;
+    private Vector3 touchPoint = new Vector3();
 
     protected PlayState(GameStateManager gsm) {
         super(gsm);
+        camera.setToOrtho(false, GameOfUrDemo.width, GameOfUrDemo.height);
         blackTurn = false;
         whiteTurn = false;
         rollDiceTexture = true;
-        blackTurnNotification = new Sprite(new TextureRegion(assets.get("BlackTurn.png", Texture.class)));
+        blackTurnNotification = new Sprite(new TextureRegion(new Texture ("BlackTurn.png")));
         blackTurnNotification.setPosition(20,200);
         whiteTurnNotification = new Sprite(new TextureRegion (new Texture("WhiteTurn.png")));
         whiteTurnNotification.setPosition(400,200);
@@ -101,10 +104,7 @@ public class PlayState extends State {
         stoneObjectsManager = new StoneObjects(2);
     }
 
-    private static void loadAssetManager(){
-        assets.load("BlackPieceTemp.png", Texture.class);
-        assets.load("BlackTurn.png", Texture.class);
-    }
+
 
     private static HashMap<Integer, Sprite> fillFinishedStoneTextures(int stonePoolColor){
         HashMap<Integer, Sprite> filledHashMap = new HashMap<Integer, Sprite>();
@@ -236,11 +236,12 @@ public class PlayState extends State {
     protected void handleInput() {
         if(Gdx.input.justTouched()) {
 
+            camera.unproject(touchPoint.set(Gdx.input.getX(0),  Gdx.input.getY(0), 0));
+            System.out.println(touchPoint.x+", "+ touchPoint.y);
             handleDiceClick();
             handleStonePoolClick();
             handleStoneClick();
-
-            if(helpButton.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())){
+            if(helpButton.getBoundingRectangle().contains(touchPoint.x, touchPoint.y)){
                 gsm.push(new HelpState(gsm));
             }
 
@@ -249,8 +250,7 @@ public class PlayState extends State {
     }
     private void handleDiceClick(){
         //checks if the dices were clicked and if it rolling the dice is a legal move
-        if (diceTextures.get(gameRunner.getDiceRoll()).getBoundingRectangle().contains(Gdx.input.getX(),
-                GameOfUrDemo.height - Gdx.input.getY()) && gameRunner.diceRollPermisssionStatus() == true) {
+        if (diceTextures.get(gameRunner.getDiceRoll()).getBoundingRectangle().contains(touchPoint.x, touchPoint.y) && gameRunner.diceRollPermisssionStatus() == true) {
 
             gameRunner.diceRollInProgress();
             gameRunner.rollDice();
@@ -263,8 +263,7 @@ public class PlayState extends State {
         for(int whiteStones:gameRunner.getWhiteStonesInUse()){
             StoneObjects stoneToCheck = gameRunner.getWhiteStones()[whiteStones]; //holds stone that is being checked
 
-            if(stoneToCheck.getStone().getBoundingRectangle().contains(Gdx.input.getX(),
-                    GameOfUrDemo.height - Gdx.input.getY()) && gameRunner.getPlayerTurnNumber() ==1
+            if(stoneToCheck.getStone().getBoundingRectangle().contains(touchPoint.x, touchPoint.y) && gameRunner.getPlayerTurnNumber() ==1
                     && gameRunner.diceRollPermisssionStatus() == false && gameRunner.legalMoveCheck(1,whiteStones))
             {
 
@@ -275,8 +274,7 @@ public class PlayState extends State {
         //same as above but for black stones
         for(int blackStones:gameRunner.getBlackStonesInUse()){
             StoneObjects stoneToCheck = gameRunner.getBlackStones()[blackStones];
-            if(stoneToCheck.getStone().getBoundingRectangle().contains(Gdx.input.getX(),
-                    GameOfUrDemo.height - Gdx.input.getY()) && gameRunner.getPlayerTurnNumber() == 2
+            if(stoneToCheck.getStone().getBoundingRectangle().contains(touchPoint.x, touchPoint.y) && gameRunner.getPlayerTurnNumber() == 2
                     && gameRunner.diceRollPermisssionStatus() == false && gameRunner.legalMoveCheck(2, blackStones))
             {
                 gameRunner.stoneNextTurn(stoneToCheck);
@@ -287,8 +285,8 @@ public class PlayState extends State {
 
     private void handleStonePoolClick(){
         //detects if the black stone pool has been clicked
-        if((blackStonePoolTextures.get(gameRunner.getUnusedBlackStones().size()).getBoundingRectangle().contains(Gdx.input.getX(),
-                GameOfUrDemo.height - Gdx.input.getY())) && gameRunner.getPlayerTurnNumber() == 2 && gameRunner.diceRollPermisssionStatus() == false
+        if((blackStonePoolTextures.get(gameRunner.getUnusedBlackStones().size()).getBoundingRectangle().contains(touchPoint.x, touchPoint.y))
+                && gameRunner.getPlayerTurnNumber() == 2 && gameRunner.diceRollPermisssionStatus() == false
                 && gameRunner.stonePoolLegalMoveCheck(2) == true)
         {
 
@@ -298,7 +296,7 @@ public class PlayState extends State {
         }
 
         //checks if the white stone pool was clicked
-        if (whiteStonePoolTextures.get(gameRunner.getUnusedWhiteStones().size()).getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())
+        if (whiteStonePoolTextures.get(gameRunner.getUnusedWhiteStones().size()).getBoundingRectangle().contains(touchPoint.x, touchPoint.y)
                 && gameRunner.getPlayerTurnNumber() ==1 && gameRunner.diceRollPermisssionStatus() == false
                 && gameRunner.stonePoolLegalMoveCheck(1) == true)
         {
@@ -332,6 +330,7 @@ public class PlayState extends State {
 
     @Override
     public void render(SpriteBatch sb) {
+        sb.setProjectionMatrix(camera.combined);
         sb.begin();
         sb.draw(background,0,0, GameOfUrDemo.width, GameOfUrDemo.height);
         pauseGear.draw(sb);

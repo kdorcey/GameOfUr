@@ -3,11 +3,14 @@ package com.royalgameofur.game.States;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.royalgameofur.game.GameLogic.Point;
 import com.royalgameofur.game.GameLogic_CurrentlyUnused.Stones;
 
-import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.HashMap;
+
+
+
 
 /**
  * Created by Kyle on 1/28/2018.
@@ -23,7 +26,8 @@ public class StoneObjects {
     private int currentY;
     private int lastX;
     private int lastY;
-    private Point2D.Double currentLocation;
+
+    private Point currentLocation;
     private int totalMoves; //each square on the board corresponds to a "total" move count
     private Stones playerStones[];
     private java.util.List<Integer> safeSpaces;
@@ -31,8 +35,8 @@ public class StoneObjects {
     private boolean finished;
     private boolean goAgain; //this is only true immediately after a stone lands on a safe space. After that player goes again it is set to false
 
-    private  HashMap<Integer, Point2D.Double> whiteMoveSet = new HashMap<Integer, Point2D.Double>();
-    private  HashMap<Integer, Point2D.Double> blackMoveSet = new HashMap<Integer, Point2D.Double>();
+    private  HashMap<Integer, Point> whiteMoveSet = new HashMap<Integer, Point>();
+    private  HashMap<Integer, Point> blackMoveSet = new HashMap<Integer, Point>();
 
     public StoneObjects(int color) {
         //color = 1 if white, color = 2 black
@@ -66,16 +70,16 @@ public class StoneObjects {
         totalMoves = 0;
     }
 
-    public Point2D.Double getCurrentLocation(){
+    public Point getCurrentLocation(){
         return currentLocation;
     }
     public boolean isStoneOnSafeSpace(){
         return onSafeSpace;
     }
 
-    public Point2D.Double testMove(int diceRoll){
+    public Point testMove(int diceRoll){
         int testTotalMove = totalMoves + diceRoll;
-        Point2D.Double moveSetToReturn = new Point2D.Double();
+        Point moveSetToReturn = new Point();
 
         if(color ==1){
             moveSetToReturn = whiteMoveSet.get(testTotalMove);
@@ -175,7 +179,7 @@ public class StoneObjects {
 
     public static HashMap defineMoveSet(int colorNumber){
         //colorNumber ==1 white, colorNumber ==2 black
-        HashMap<Integer, Point2D.Double> moveSet = new HashMap<Integer, Point2D.Double>();
+        HashMap<Integer, Point> moveSet = new HashMap<Integer, Point>();
 
         int x = 0;
         int y = 364;
@@ -219,7 +223,7 @@ public class StoneObjects {
             }
 
 
-            moveSet.put(i, new Point2D.Double(x,y));
+            moveSet.put(i, new Point(x,y));
 
             if(i == 0){
                 y = 364;
@@ -227,10 +231,10 @@ public class StoneObjects {
         }
 
         if(colorNumber ==2){
-            moveSet.put(15, new Point2D.Double(40,680));
+            moveSet.put(15, new Point(40,680));
         }
         else if (colorNumber ==1){
-            moveSet.put(15, new Point2D.Double(440, 680));
+            moveSet.put(15, new Point(440, 680));
         }
 
 
@@ -238,10 +242,10 @@ public class StoneObjects {
         return moveSet;
     }
 
-    public  HashMap<Integer, Point2D.Double> getWhiteMoveSet(){
+    public  HashMap<Integer, Point> getWhiteMoveSet(){
         return whiteMoveSet;
     }
-    public HashMap<Integer, Point2D.Double> getBlackMoveSet(){
+    public HashMap<Integer, Point> getBlackMoveSet(){
         return blackMoveSet;
     }
     public boolean isFinished(){

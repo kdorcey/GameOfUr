@@ -1,9 +1,11 @@
 package com.royalgameofur.game.States;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.royalgameofur.game.GameOfUrDemo;
 
 /**
  *CHANGE THESE PROTECTED VARIABLES EW
@@ -19,6 +21,7 @@ public abstract class State{
     protected State(GameStateManager gsm){
         this.gsm = gsm;
         camera = new OrthographicCamera();
+
         mouse = new Vector3();
     }
 

@@ -1,1 +1,2 @@
+include ':lib', ':library'
 include 'desktop', 'android', 'ios', 'html', 'core'
