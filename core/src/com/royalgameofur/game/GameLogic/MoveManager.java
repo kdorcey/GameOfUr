@@ -2,7 +2,6 @@ package com.royalgameofur.game.GameLogic;
 
 import com.royalgameofur.game.States.StoneObjects;
 
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Stack;
@@ -31,6 +30,9 @@ public class MoveManager {
     private int diceTexture;
 
     private boolean win;
+
+
+
     private boolean blackWin;
     private boolean whiteWin;
 
@@ -147,7 +149,7 @@ public class MoveManager {
 
             else if(colorToCheck ==2){
                 for(int blackStoneToCheck:blackStonesInUse){
-                    if(blackStones[blackStoneToCheck].getCurrentLocation().equals(testMove)){
+                    if(!blackStones[blackStoneToCheck].isFinished() && blackStones[blackStoneToCheck].getCurrentLocation().equals(testMove)){
                         legalCheck = false;
                     }
 
@@ -173,11 +175,15 @@ public class MoveManager {
     public void rollDice(){
         diceRoll = dice.nextInt(5);
         diceTexture = diceRoll;
+        if(!possibleMoveCheck()){
+            turnCount++;
+            diceTexture = -3;
+            diceRollPermisssion = true;
+        }
         if(diceRoll ==0){
             turnCount++;
             diceTexture = 0;
             diceRollPermisssion = true;
-
         }
     }
     public int getPlayerTurnNumber(){
@@ -260,6 +266,43 @@ public class MoveManager {
 
     }
 
+    public boolean possibleMoveCheck(){
+        //checks that the player can make anymove at all. If no returns false
+        boolean moveIsPossible = true;
+        int testNumber = 0;
+        if(turnCount%2==0){
+            if(unusedBlackStones.size() != 7) {
+                for (int stoneNumber : blackStonesInUse) {
+                    if (legalMoveCheck(2, stoneNumber)) {
+                        testNumber++;
+                        ;
+                    }
+                }
+            } else{
+                return true;
+            }
+        }
+        else if(turnCount%2!=0){
+            if(unusedWhiteStones.size() != 7) {
+                for (int stoneNumber : whiteStonesInUse) {
+                    if (legalMoveCheck(2, stoneNumber)) {
+                        testNumber++;
+                    }
+                }
+            } else{
+                return true;
+            }
+        }
+        System.out.println("test number "+testNumber);
+        if(testNumber>=1){
+            moveIsPossible = true;
+        }
+        else{
+            moveIsPossible = false;
+        }
+        return moveIsPossible;
+    }
+
 
 
     public StoneObjects deployWhiteStone(){
@@ -316,7 +359,13 @@ public class MoveManager {
     public int getDiceTexture(){
         return diceTexture;
     }
+    public boolean isBlackWin() {
+        return blackWin;
+    }
 
+    public boolean isWhiteWin() {
+        return whiteWin;
+    }
     public int getCompletedBlackStoneCount(){
         return completedBlackStoneCount;
     }

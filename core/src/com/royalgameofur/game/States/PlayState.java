@@ -18,20 +18,22 @@ import java.util.HashMap;
  */
 
 public class PlayState extends State {
-    private Texture board;
+    private Texture board, background;
+    private Texture whiteWinBackground, blackWinBackground;
+    private Sprite playAgainButton;
+    private Sprite returnToMenuButton;
     //squares go from left to right from 0-7. 4 and 5 are invisible in rows 0 and 1
     //rows 0 and 2 have safe spaces at 0 and 6
     //row 2 has a safe space at 3
-    private static AssetManager assets;
     private Sprite square[][];
-    private Sprite pauseGear;
-    private Sprite helpButton;
-    private final Sprite whiteTurnNotification;
-    private final Sprite blackTurnNotification;
-    private static Texture background;
+    private Sprite pauseGear, helpButton, whiteTurnNotification, blackTurnNotification;
+
     private boolean blackTurn;
     private boolean whiteTurn;
-    private boolean rollDiceTexture;
+
+    private boolean win;
+    private boolean blackWin;
+    private boolean whiteWin;
 
     private StoneObjects stoneObjectsManager;
 
@@ -41,7 +43,6 @@ public class PlayState extends State {
     private HashMap<Integer, Sprite> diceTextures;
     private HashMap<Integer, Sprite> finishedBlackStoneTextures;
     private HashMap<Integer, Sprite> finishedWhiteStoneTextures;
-
     private ArrayList<Integer> whiteStonesOnBoard;
     private ArrayList<Integer> blackStonesOnBoard;
 
@@ -53,7 +54,9 @@ public class PlayState extends State {
         camera.setToOrtho(false, GameOfUrDemo.width, GameOfUrDemo.height);
         blackTurn = false;
         whiteTurn = false;
-        rollDiceTexture = true;
+        win = false;
+        blackWin = false;
+        whiteWin = false;
         blackTurnNotification = new Sprite(new TextureRegion(new Texture ("BlackTurn.png")));
         blackTurnNotification.setPosition(20,200);
         whiteTurnNotification = new Sprite(new TextureRegion (new Texture("WhiteTurn.png")));
@@ -68,6 +71,7 @@ public class PlayState extends State {
         background = new Texture("PlayStateBackground.jpg");
 
         diceTextures = new HashMap<Integer, Sprite>();
+        diceTextures.put(-3, new Sprite(new TextureRegion(new Texture("NoMoveDice.png"))));
         diceTextures.put(-2, new Sprite(new TextureRegion(new Texture("RollAgain.png"))));
         diceTextures.put(-1, new Sprite(new TextureRegion(new Texture("RollDice.png"))));
         diceTextures.put(0, new Sprite(new TextureRegion(new Texture("TurnSkipped.png"))));
@@ -79,6 +83,8 @@ public class PlayState extends State {
 
         whiteStonePoolTextures = fillStonePoolTextures(1);
         blackStonePoolTextures = fillStonePoolTextures(2);
+
+
 
         finishedWhiteStoneTextures = fillFinishedStoneTextures(1);
         finishedBlackStoneTextures = fillFinishedStoneTextures(2);
@@ -100,6 +106,12 @@ public class PlayState extends State {
         boardSquareTextures.put(6, new Sprite(new TextureRegion(new Texture("SafeSpace.png"))));
 
         square = createSquares(boardSquareTextures);
+
+        whiteWinBackground = new Texture("WhiteWinsScreen.png");
+        blackWinBackground = new Texture("BlackWinScreen.png");
+        playAgainButton = new Sprite(new TextureRegion(new Texture("PlayAgainButton.png")));
+
+        returnToMenuButton = new Sprite(new TextureRegion(new Texture("MenuButton.png")));
 
         stoneObjectsManager = new StoneObjects(2);
     }
@@ -123,12 +135,12 @@ public class PlayState extends State {
             filledHashMap.put(0, new Sprite(new TextureRegion(new Texture("PlayStateBackground.jpg"))));
             filledHashMap.get(0).setSize(80,200);
             filledHashMap.put(1, new Sprite(new TextureRegion(new Texture("FinishedBlackStones1.png"))));
-            filledHashMap.put(2, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones2.png"))));
-            filledHashMap.put(3, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones3.png"))));
-            filledHashMap.put(4, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones4.png"))));
-            filledHashMap.put(5, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones5.png"))));
-            filledHashMap.put(6, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones6.png"))));
-            filledHashMap.put(7, new Sprite(new TextureRegion(new Texture("FinishedWhiteStones7.png"))));
+            filledHashMap.put(2, new Sprite(new TextureRegion(new Texture("FinishedBlackStones2.png"))));
+            filledHashMap.put(3, new Sprite(new TextureRegion(new Texture("FinishedBlackStones3.png"))));
+            filledHashMap.put(4, new Sprite(new TextureRegion(new Texture("FinishedBlackStones4.png"))));
+            filledHashMap.put(5, new Sprite(new TextureRegion(new Texture("FinishedBlackStones5.png"))));
+            filledHashMap.put(6, new Sprite(new TextureRegion(new Texture("FinishedBlackStones6.png"))));
+            filledHashMap.put(7, new Sprite(new TextureRegion(new Texture("FinishedBlackStones7.png"))));
         }
         return filledHashMap;
     }
@@ -245,15 +257,27 @@ public class PlayState extends State {
                 gsm.push(new HelpState(gsm));
             }
 
+            if(win = true && playAgainButton.getBoundingRectangle().getX() !=0 && returnToMenuButton.getBoundingRectangle().getX()!=0){
+                if(playAgainButton.getBoundingRectangle().contains(touchPoint.x, touchPoint.y)){
+                    gsm.pop();
+                    gsm.push(new PlayState(gsm));
+                }
+                if(returnToMenuButton.getBoundingRectangle().contains(touchPoint.x, touchPoint.y)){
+                    gsm.pop();
+                    gsm.push(new MenuState(gsm));
+                }
+            }
 
         }
     }
     private void handleDiceClick(){
         //checks if the dices were clicked and if it rolling the dice is a legal move
-        if (diceTextures.get(gameRunner.getDiceRoll()).getBoundingRectangle().contains(touchPoint.x, touchPoint.y) && gameRunner.diceRollPermisssionStatus() == true) {
+        if (diceTextures.get(gameRunner.getDiceRoll()).getBoundingRectangle().contains(touchPoint.x, touchPoint.y) &&
+                gameRunner.diceRollPermisssionStatus() == true) {
 
             gameRunner.diceRollInProgress();
             gameRunner.rollDice();
+
 
         }
     }
@@ -308,7 +332,15 @@ public class PlayState extends State {
 
     @Override
     public void update(float deltaTime) {
-        gameRunner.winCheck();
+        if(gameRunner.winCheck()){
+            win = true;
+            if(gameRunner.isBlackWin()){
+                blackWin = true;
+            }
+            else if (gameRunner.isWhiteWin()){
+                whiteWin = true;
+            }
+        }
         handleInput();
         if(gameRunner.getTurnCount()%2 != 0){
             whiteTurn = true;
@@ -357,12 +389,33 @@ public class PlayState extends State {
         finishedBlackStoneTextures.get(gameRunner.getCompletedBlackStoneCount()).setPosition(0,600);
         finishedBlackStoneTextures.get(gameRunner.getCompletedBlackStoneCount()).draw(sb);
         finishedWhiteStoneTextures.get(gameRunner.getCompleteWhiteStoneCount()).setPosition(400,600);
+        finishedWhiteStoneTextures.get(gameRunner.getCompleteWhiteStoneCount()).draw(sb);
+
         blackStonePoolTextures.get(gameRunner.getUnusedBlackStones().size()).setPosition(20,500);
         blackStonePoolTextures.get(gameRunner.getUnusedBlackStones().size()).draw(sb);
         whiteStonePoolTextures.get(gameRunner.getUnusedWhiteStones().size()).setPosition(300,500);
         whiteStonePoolTextures.get(gameRunner.getUnusedWhiteStones().size()).draw(sb);
 
         updateStonePosition(sb);
+
+        if(win == true){
+            if(whiteWin == true){
+                sb.draw(whiteWinBackground,60,440);
+                playAgainButton.setPosition(60+94, 440+98);
+                playAgainButton.draw(sb);
+                returnToMenuButton.setPosition(60+94, 440+18);
+                returnToMenuButton.draw(sb);
+
+            }
+            else if(blackWin == true){
+                sb.draw(blackWinBackground,60,440);
+                playAgainButton.setPosition(60+94, 440+98);
+                playAgainButton.draw(sb);
+                returnToMenuButton.setPosition(60+94, 440+18);
+                returnToMenuButton.draw(sb);
+            }
+
+        }
 
 
         sb.end();

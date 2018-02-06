@@ -47,25 +47,21 @@ public class MenuState extends State {
     @Override
     public void handleInput() {
         if (Gdx.input.justTouched()) {
-            //for some reason when drawing sprites it draws from top left to bottom right. When drawing rectangles it's bottom left to top right.
 
             camera.unproject(touchpoint.set(Gdx.input.getX(0), Gdx.input.getY(0),0));
-            System.out.println(touchpoint.x+", "+touchpoint.y);
             if(playLocalButton.getBoundingRectangle().contains(touchpoint.x,touchpoint.y))
-            //if (playLocalButtonListener.contains(Gdx.input.getX(), Gdx.input.getY()))
             {
                 System.out.println("play local pressed");
                 gsm.set(new PlayState(gsm));
-                //dispose();
 
-            }/*
+            }
             if (hostOnlineButton.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height- Gdx.input.getY())){
                 System.out.println("host online pressed");
             }
             if (playOnlineButton.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())){
                 System.out.println("play online pressed");
             }
-            */
+
 
         }
     }

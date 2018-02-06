@@ -1,10 +1,14 @@
 package com.royalgameofur.game.States;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Input.Keys;
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector3;
 import com.royalgameofur.game.GameOfUrDemo;
 
 /**
@@ -14,9 +18,13 @@ import com.royalgameofur.game.GameOfUrDemo;
 public class HelpState extends State {
     private Sprite backButton;
     private Texture header, freeSpaceExample, stoneExample, diceExapmle, dash, freeSpaceText, stoneText, diceText, background;
+    private Vector3 touchpoint = new Vector3();
+
 
     protected HelpState(GameStateManager gsm) {
         super(gsm);
+        camera.setToOrtho(false, GameOfUrDemo.width, GameOfUrDemo.height);
+
         backButton = new Sprite(new TextureRegion(new Texture("BackButton.png")));
         backButton.setPosition(40,40);
         header = new Texture("RulesHeader.png");
@@ -34,7 +42,10 @@ public class HelpState extends State {
     @Override
     protected void handleInput() {
         if(Gdx.input.justTouched()){
-            if(backButton.getBoundingRectangle().contains(Gdx.input.getX(), GameOfUrDemo.height - Gdx.input.getY())){
+            camera.unproject(touchpoint.set(Gdx.input.getX(0), Gdx.input.getY(0),0));
+
+            if(backButton.getBoundingRectangle().contains(touchpoint.x, touchpoint.y) || (Gdx.input.isKeyPressed(Keys.BACK)))
+            {
                 gsm.pop();
                 dispose();
             }
